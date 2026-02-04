@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model carriage {
+  id_carriage       Int               @id @default(autoincrement())
+  carriage_name     String
+  quota             Int
+  carriage_category carriage_category
+  id_train          Int
+  train             train             @relation(fields: [id_train], references: [id_train], map: "Carriage_trainId_fkey")
+  seat              seat[]
+
+  @@index([id_train], map: "Carriage_trainId_fkey")
+}
+
+model schedule {
+  id_schedule    Int      @id @default(autoincrement())
+  departure      String
+  destination    String
+  departure_date DateTime
+  arrival_date   DateTime
+  adult_price    Float
+  child_price    Float
+  quota_total    Int
+  status         status   @default(ACTIVED)
+
+  id_train        Int
+
+  train           train             @relation(fields: [id_train], references: [id_train], map: "Schedule_trainId_fkey")
+  seat_schedule   seat_schedule[]
+  ticket_purchase ticket_purchase[]
+
+  @@index([id_train], map: "Schedule_trainId_fkey")
+}
+
+model seat {
+  id_seat         Int               @id @default(autoincrement())
+  seat_num        String
+  id_carriage     Int
+  purchase_detail purchase_detail[]
+  carriage        carriage          @relation(fields: [id_carriage], references: [id_carriage], map: "Seat_carriageId_fkey")
+  seat_schedule   seat_schedule[]
+
+  @@index([id_carriage], map: "Seat_carriageId_fkey")
+}
+
+model seat_schedule {
+  id_seat_schedule                Int                 @id @default(autoincrement())
+  id_seat                         Int
+  id_schedule                     Int
+  status                          seatschedule_status @default(AVAILABLE)
+  purchaseDetailId_purchasedetail Int?
+  purchase_detail                 purchase_detail?    @relation(fields: [purchaseDetailId_purchasedetail], references: [id_purchasedetail], map: "SeatSchedule_purchaseDetailId_purchasedetail_fkey")
+  schedule                        schedule            @relation(fields: [id_schedule], references: [id_schedule], map: "SeatSchedule_scheduleId_fkey")
+  seat                            seat                @relation(fields: [id_seat], references: [id_seat], map: "SeatSchedule_seatId_fkey")
+
+  @@unique([id_seat, id_schedule], map: "SeatSchedule_seatId_scheduleId_key")
+  @@index([purchaseDetailId_purchasedetail], map: "SeatSchedule_purchaseDetailId_purchasedetail_fkey")
+  @@index([id_schedule], map: "SeatSchedule_scheduleId_fkey")
+}
+
+model ticket_purchase {
+  id_ticketpurchase Int               @id @default(autoincrement())
+  purchase_date     DateTime          @default(now())
+  buyer_name        String
+  buyer_email       String
+  buyer_phone       String
+  total_price       Float
+  id_schedule       Int
+  id_user           Int?
+  purchase_detail   purchase_detail[]
+  schedule          schedule          @relation(fields: [id_schedule], references: [id_schedule], map: "TicketPurchase_scheduleId_fkey")
+  user              user?             @relation(fields: [id_user], references: [id_user], map: "TicketPurchase_userId_fkey")
+
+  @@index([id_schedule], map: "TicketPurchase_scheduleId_fkey")
+  @@index([id_user], map: "TicketPurchase_userId_fkey")
+}
+
+model purchase_detail {
+  id_purchasedetail  Int             @id @default(autoincrement())
+  buyer_name         String
+  buyer_email        String
+  buyer_phone        String
+  total_price        Float
+  id_seat            Int
+  id_ticket_purchase Int
+  seat               seat            @relation(fields: [id_seat], references: [id_seat], map: "PurchaseDetail_seatId_fkey")
+  ticket_purchase    ticket_purchase @relation(fields: [id_ticket_purchase], references: [id_ticketpurchase], map: "PurchaseDetail_ticketPurchaseId_fkey")
+  seat_schedule      seat_schedule[]
+
+  @@index([id_seat], map: "PurchaseDetail_seatId_fkey")
+  @@index([id_ticket_purchase], map: "PurchaseDetail_ticketPurchaseId_fkey")
+}
+
+model train {
+  id_train      Int        @id @default(autoincrement())
+  train_name    String
+  description   String
+  train_picture String     @default("")
+  carriage      carriage[]
+  schedule      schedule[]
+}
+
+model user {
+  id_user         Int       @id @default(autoincrement())
+  username        String
+  email           String    @unique(map: "User_email_key")
+  password        String
+  role            user_role
+  profile_picture String    @default("")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  address         String            @default("")
+  nik             String            @unique(map: "User_nik_key")
+  phone           String            @default("")
+  ticket_purchase ticket_purchase[]
+}
+
+enum seatschedule_status {
+  AVAILABLE
+  BOOKED
+}
+
+enum carriage_category {
+  EKSEKUTIVE
+  BUSSINESS
+  ECONOMY
+}
+
+enum user_role {
+  ADMIN
+  CUSTOMER
+}
+
+enum status {
+  FINISHED
+  CANCELLED
+  ACTIVED
+}

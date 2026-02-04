@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# environment variables
+.env
+.env.local
+
+# prisma
+prisma/*.db
+prisma/dev.db
+prisma/migrations/
+
+# build output
+dist/
+build/
+
+# logs
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
