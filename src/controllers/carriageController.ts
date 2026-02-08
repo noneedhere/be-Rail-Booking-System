@@ -90,7 +90,13 @@ export const getCarriageById = async (request: Request, response: Response) => {
 
 export const createCarriage = async (request: Request, response: Response) => {
     try {
+        // Debug: Log incoming request body
+        console.log("📦 Received request.body:", request.body)
+
         const { carriage_name, id_train, carriage_category: category } = request.body
+
+        // Debug: Log extracted values
+        console.log("🔍 Extracted values:", { carriage_name, id_train, category })
 
         if (!carriage_name || !id_train || !category) {
             return response.status(400).json({
@@ -102,7 +108,7 @@ export const createCarriage = async (request: Request, response: Response) => {
         if (!Object.values(carriage_category).includes(category)) {
             return response.status(400).json({
                 status: false,
-                message: "Invalid carriage category value",
+                message: `Invalid carriage category value. Received: '${category}'. Valid values: ${Object.values(carriage_category).join(", ")}`,
             })
         }
 
@@ -163,12 +169,12 @@ const generateSeatByCarriageCategory = (
     let columns: string[] = [];
 
     switch (category) {
-        case "BUSSINESS":
+        case "BUSINESS":
             rows = 5;
             columns = ["A", "B"];
             break;
 
-        case "EKSEKUTIVE":
+        case "EXECUTIVE":
             rows = 10;
             columns = ["A", "B"];
             break;

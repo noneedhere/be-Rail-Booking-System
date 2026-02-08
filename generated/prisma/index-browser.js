@@ -130,12 +130,12 @@ exports.Prisma.CarriageScalarFieldEnum = {
 
 exports.Prisma.ScheduleScalarFieldEnum = {
   id_schedule: 'id_schedule',
+  schedule_name: 'schedule_name',
   departure: 'departure',
   destination: 'destination',
   departure_date: 'departure_date',
   arrival_date: 'arrival_date',
-  adult_price: 'adult_price',
-  child_price: 'child_price',
+  price: 'price',
   quota_total: 'quota_total',
   status: 'status',
   id_train: 'id_train'
@@ -151,7 +151,7 @@ exports.Prisma.Seat_scheduleScalarFieldEnum = {
   id_seat_schedule: 'id_seat_schedule',
   id_seat: 'id_seat',
   id_schedule: 'id_schedule',
-  status: 'status',
+  seatschedule_status: 'seatschedule_status',
   purchaseDetailId_purchasedetail: 'purchaseDetailId_purchasedetail'
 };
 
@@ -180,7 +180,8 @@ exports.Prisma.TrainScalarFieldEnum = {
   id_train: 'id_train',
   train_name: 'train_name',
   description: 'description',
-  train_picture: 'train_picture'
+  train_picture: 'train_picture',
+  train_status: 'train_status'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
@@ -207,6 +208,7 @@ exports.Prisma.carriageOrderByRelevanceFieldEnum = {
 };
 
 exports.Prisma.scheduleOrderByRelevanceFieldEnum = {
+  schedule_name: 'schedule_name',
   departure: 'departure',
   destination: 'destination'
 };
@@ -248,8 +250,8 @@ exports.Prisma.userOrderByRelevanceFieldEnum = {
   phone: 'phone'
 };
 exports.carriage_category = exports.$Enums.carriage_category = {
-  EKSEKUTIVE: 'EKSEKUTIVE',
-  BUSSINESS: 'BUSSINESS',
+  EXECUTIVE: 'EXECUTIVE',
+  BUSINESS: 'BUSINESS',
   ECONOMY: 'ECONOMY'
 };
 
@@ -262,6 +264,11 @@ exports.status = exports.$Enums.status = {
 exports.seatschedule_status = exports.$Enums.seatschedule_status = {
   AVAILABLE: 'AVAILABLE',
   BOOKED: 'BOOKED'
+};
+
+exports.train_status = exports.$Enums.train_status = {
+  AVAILABLE: 'AVAILABLE',
+  ACTIVE: 'ACTIVE'
 };
 
 exports.user_role = exports.$Enums.user_role = {

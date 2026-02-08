@@ -22,7 +22,6 @@ x-user-phone: <phone>
 ```json
 {
   "id_schedule": 1,
-  "total_price": 150000,
   "buyer_name": "John Doe",      // Optional - defaults to user's username
   "buyer_email": "john@email.com", // Optional - defaults to user's email
   "buyer_phone": "08123456789"    // Optional - defaults to user's phone

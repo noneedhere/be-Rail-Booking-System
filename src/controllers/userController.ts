@@ -5,6 +5,7 @@ import { BASE_URL, SECRET } from "../global.js";
 import fs from "fs";
 import md5 from "md5";
 import multer from "multer";
+import jwt from "jsonwebtoken";
 
 const adapter = new PrismaMariaDb(
     {
@@ -94,6 +95,15 @@ export const createUser = async (request: Request, response: Response) => {
             });
         }
 
+        // Check email uniqueness BEFORE creating user
+        const existing = await prisma.user.findUnique({ where: { email } });
+        if (existing) {
+            return response.status(409).json({
+                status: false,
+                message: "Email already registered"
+            });
+        }
+
         const nik = `NIK${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
         const newUser = await prisma.user.create({
@@ -104,7 +114,7 @@ export const createUser = async (request: Request, response: Response) => {
                 phone,
                 nik,
                 role,
-                // profile_picture: filename
+                profile_picture: filename || ""
             },
         });
 
@@ -117,12 +127,12 @@ export const createUser = async (request: Request, response: Response) => {
                 phone: newUser.phone,
                 role: newUser.role,
             },
-            message: "Akun berhasil dibuat",
+            message: "Account created successfully",
         });
     } catch (error) {
         return response.status(400).json({
             status: false,
-            message: "Gagal membuat akun",
+            message: `Failed to create account. ${error}`,
         });
     }
 };
@@ -175,7 +185,7 @@ export const changePicture = async (request: any, response: Response) => {
         /** make sure that data is exists in database */
         const findUser = await prisma.user.findFirst({ where: { id_user: Number(id) } })
         if (!findUser) return response
-            .status(200)
+            .status(404)
             .json({ status: false, message: `User is not found` })
 
         /** default value filename of saved data */
@@ -196,16 +206,16 @@ export const changePicture = async (request: any, response: Response) => {
             where: { id_user: Number(id) }
         })
 
-        return response.json({
+        return response.status(200).json({
             status: true,
             data: updatePicture,
             message: `Picture has changed`
-        }).status(200)
+        })
     } catch (error) {
-        return response.json({
+        return response.status(400).json({
             status: false,
             message: `There is an error. ${error}`
-        }).status(400)
+        })
     }
 }
 
@@ -262,18 +272,21 @@ export const authentication = async (req: Request, res: Response) => {
         const payload = {
             id: user.id_user,
             username: user.username,
-            role: user.role
+            role: user.role,
+            email: user.email,
+            phone: user.phone
         };
 
-        // const token = sign(payload, SECRET || "joss", {
-        //     expiresIn: "1d"
-        // });
+        // Generate JWT token
+        const token = jwt.sign(payload, SECRET || "joss", {
+            expiresIn: "1d"
+        });
 
         return res.status(200).json({
             status: true,
             logged: true,
             data: payload,
-            // token
+            token
         });
     } catch (error) {
         return res.status(500).json({

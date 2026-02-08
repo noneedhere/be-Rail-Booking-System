@@ -28,6 +28,7 @@ export const getAllTrain = async (request: Request, response: Response) => {
                 id_train: true,
                 train_name: true,
                 description: true,
+                train_status: true,
             },
         });
 
@@ -54,6 +55,7 @@ export const getTrainById = async (request: Request, response: Response) => {
                 id_train: true,
                 train_name: true,
                 description: true,
+                train_status: true,
             },
         });
 
@@ -96,7 +98,7 @@ export const createTrain = async (request: Request, response: Response) => {
             data: {
                 train_name,
                 description,
-                // profile_picture: filename
+                train_picture: filename || ""
             },
         });
 
@@ -106,7 +108,7 @@ export const createTrain = async (request: Request, response: Response) => {
                 id_train: newTrain.id_train,
                 train_name: newTrain.train_name,
                 description: newTrain.description,
-                // profile_picture: newTrain.profile_picture,
+                train_picture: newTrain.train_picture,
             },
             message: "Train has been created",
         });
@@ -171,28 +173,28 @@ export const changePicture = async (request: any, response: Response) => {
             .json({ status: false, message: `Train is not found` })
 
         /** default value filename of saved data */
-        let filename = findTrain.profile_picture
+        let filename = findTrain.train_picture
         if (request.file) {
             /** update filename by new uploaded picture */
             filename = request.file.filename
             /** check the old picture in the folder */
-            let path = `${BASE_URL}/../public/profilePicture/${findTrain.profile_picture}`
+            let path = `${BASE_URL}/../public/train_picture/${findTrain.train_picture}`
             let exists = fs.existsSync(path)
             /** delete the old exists picture if reupload new file */
-            if (exists && findTrain.profile_picture !== ``) fs.unlinkSync(path)
+            if (exists && findTrain.train_picture !== ``) fs.unlinkSync(path)
         }
 
         /** process to update picture in database */
-        const update_Picture = await prisma.train.update({
-            data: { profile_picture: filename },
+        const updatePicture = await prisma.train.update({
+            data: { train_picture: filename },
             where: { id_train: Number(id) }
         })
 
-        return response.json({
+        return response.status(200).json({
             status: true,
-            data: update_Picture,
+            data: updatePicture,
             message: `Picture has changed`
-        }).status(200)
+        })
     } catch (error) {
         return response.json({
             status: false,
@@ -203,31 +205,56 @@ export const changePicture = async (request: any, response: Response) => {
 
 export const deleteTrain = async (request: Request, response: Response) => {
     try {
-        const { id } = request.params;
+        const { id } = request.params
+
+        if (!id) {
+            return response.status(400).json({
+                status: false,
+                message: "Train id is required",
+            })
+        }
+
+        const trainId = Number(id)
 
         const train = await prisma.train.findUnique({
-            where: { id_train: Number(id) },
-        });
+            where: { id_train: trainId },
+        })
 
         if (!train) {
             return response.status(404).json({
                 status: false,
                 message: "Train not found",
-            });
+            })
+        }
+
+        // 🔒 Check active schedules
+        const activeSchedule = await prisma.schedule.findFirst({
+            where: {
+                id_train: trainId,
+                status: "ACTIVED",
+            },
+        })
+
+        if (activeSchedule) {
+            return response.status(409).json({
+                status: false,
+                message:
+                    "Train cannot be deleted because it still has active schedules",
+            })
         }
 
         await prisma.train.delete({
-            where: { id_train: Number(id) },
-        });
+            where: { id_train: trainId },
+        })
 
         return response.status(200).json({
             status: true,
             message: "Train has been deleted",
-        });
+        })
     } catch (error) {
         return response.status(400).json({
             status: false,
             message: `There is an error. ${error}`,
-        });
+        })
     }
-};
+}

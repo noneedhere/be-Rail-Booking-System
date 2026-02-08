@@ -21,7 +21,7 @@ interface AuthRequest extends Request {
 
 export const createTicketPurchase = async (req: AuthRequest, res: Response) => {
     try {
-        const { id_schedule, buyer_name, buyer_email, buyer_phone, ticket_count } = req.body;
+        const { id_schedule, buyer_name, buyer_email, buyer_phone, seat_ids } = req.body;
 
         if (!req.user) {
             return res.status(401).json({
@@ -37,22 +37,21 @@ export const createTicketPurchase = async (req: AuthRequest, res: Response) => {
             });
         }
 
-        const ticketCount = Number(ticket_count) || 1;
-
-        if (ticketCount < 1) {
+        if (!seat_ids || !Array.isArray(seat_ids) || seat_ids.length === 0) {
             return res.status(400).json({
                 status: false,
-                message: "At least one ticket is required",
+                message: "seat_ids is required and must be a non-empty array",
             });
         }
 
-        if (ticketCount > 10) {
+        if (seat_ids.length > 10) {
             return res.status(400).json({
                 status: false,
-                message: "Maximum 10 tickets per purchase",
+                message: "Maximum 10 seats per purchase",
             });
         }
 
+        // Validate schedule exists
         const schedule = await prisma.schedule.findUnique({
             where: { id_schedule: Number(id_schedule) },
             include: {
@@ -67,6 +66,7 @@ export const createTicketPurchase = async (req: AuthRequest, res: Response) => {
             });
         }
 
+        // Validate schedule dates
         const currentDate = new Date();
         const departureDate = new Date(schedule.departure_date);
         const arrivalDate = new Date(schedule.arrival_date);
@@ -85,6 +85,7 @@ export const createTicketPurchase = async (req: AuthRequest, res: Response) => {
             });
         }
 
+        // Validate user exists
         const user = await prisma.user.findUnique({
             where: { id_user: req.user.id },
         });
@@ -96,44 +97,160 @@ export const createTicketPurchase = async (req: AuthRequest, res: Response) => {
             });
         }
 
-        const ticketPrice = schedule.adult_price;
-        const calculatedTotalPrice = ticketCount * ticketPrice;
-
-        const newPurchase = await prisma.ticket_purchase.create({
-            data: {
-                id_user: req.user.id,
+        // Check seat availability - all seats must be AVAILABLE for this schedule
+        const seatSchedules = await prisma.seat_schedule.findMany({
+            where: {
                 id_schedule: Number(id_schedule),
-                buyer_name: buyer_name || user.username,
-                buyer_email: buyer_email || user.email,
-                buyer_phone: buyer_phone || user.phone,
-                total_price: calculatedTotalPrice,
+                id_seat: {
+                    in: seat_ids.map((id: any) => Number(id)),
+                },
             },
             include: {
-                schedule: {
+                seat: {
                     include: {
-                        train: true,
-                    },
-                },
-                user: {
-                    select: {
-                        id_user: true,
-                        username: true,
-                        email: true,
-                        phone: true,
+                        carriage: true,
                     },
                 },
             },
         });
 
+        // Validate all seats exist for this schedule
+        if (seatSchedules.length !== seat_ids.length) {
+            return res.status(400).json({
+                status: false,
+                message: "One or more seats do not exist for this schedule",
+            });
+        }
+
+        // Check if all seats are available
+        const unavailableSeats = seatSchedules.filter(
+            (ss: any) => ss.status !== "AVAILABLE"
+        );
+
+        if (unavailableSeats.length > 0) {
+            const unavailableSeatNumbers = unavailableSeats.map(
+                (ss: any) => ss.seat.seat_num
+            );
+            return res.status(400).json({
+                status: false,
+                message: `The following seats are already booked: ${unavailableSeatNumbers.join(", ")}`,
+            });
+        }
+
+        // Define carriage category price multipliers
+        const CARRIAGE_MULTIPLIERS: Record<string, number> = {
+            ECONOMY: 1.0,
+            EXECUTIVE: 2.0,
+            BUSINESS: 5.0
+        };
+
+        // Calculate price per seat based on carriage category
+        let calculatedTotalPrice = 0;
+        const seatPrices: { id_seat: number; price: number; category: string; seat_num: string }[] = [];
+
+        for (const seatSchedule of seatSchedules) {
+            const multiplier = CARRIAGE_MULTIPLIERS[seatSchedule.seat.carriage.carriage_category];
+            const seatPrice = schedule.price * multiplier;
+            calculatedTotalPrice += seatPrice;
+            seatPrices.push({
+                id_seat: seatSchedule.id_seat,
+                price: seatPrice,
+                category: seatSchedule.seat.carriage.carriage_category,
+                seat_num: seatSchedule.seat.seat_num
+            });
+        }
+
+        // Use transaction to ensure data consistency
+        const result = await prisma.$transaction(async (tx: any) => {
+            // Create ticket purchase
+            const newPurchase = await tx.ticket_purchase.create({
+                data: {
+                    id_user: req.user!.id,
+                    id_schedule: Number(id_schedule),
+                    buyer_name: buyer_name || user.username,
+                    buyer_email: buyer_email || user.email,
+                    buyer_phone: buyer_phone || user.phone,
+                    total_price: calculatedTotalPrice,
+                },
+            });
+
+            // Create purchase details for each seat with correct per-seat pricing
+            const purchaseDetails = [];
+            for (const seatSchedule of seatSchedules) {
+                const seatPriceInfo = seatPrices.find(sp => sp.id_seat === seatSchedule.id_seat)!;
+
+                const purchaseDetail = await tx.purchase_detail.create({
+                    data: {
+                        id_ticket_purchase: newPurchase.id_ticketpurchase,
+                        id_seat: seatSchedule.id_seat,
+                        buyer_name: buyer_name || user.username,
+                        buyer_email: buyer_email || user.email,
+                        buyer_phone: buyer_phone || user.phone,
+                        total_price: seatPriceInfo.price, // Per-seat price based on carriage category
+                    },
+                });
+                purchaseDetails.push(purchaseDetail);
+
+                // Update seat_schedule status to BOOKED
+                await tx.seat_schedule.update({
+                    where: {
+                        id_seat_schedule: seatSchedule.id_seat_schedule,
+                    },
+                    data: {
+                        status: "BOOKED",
+                        purchaseDetailId_purchasedetail: purchaseDetail.id_purchasedetail,
+                    },
+                });
+            }
+
+            // Fetch complete purchase data with relations
+            const completePurchase = await tx.ticket_purchase.findUnique({
+                where: {
+                    id_ticketpurchase: newPurchase.id_ticketpurchase,
+                },
+                include: {
+                    schedule: {
+                        include: {
+                            train: true,
+                        },
+                    },
+                    user: {
+                        select: {
+                            id_user: true,
+                            username: true,
+                            email: true,
+                            phone: true,
+                        },
+                    },
+                    purchase_detail: {
+                        include: {
+                            seat: {
+                                include: {
+                                    carriage: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+
+            return completePurchase;
+        });
+
         return res.status(201).json({
             status: true,
-            message: "Ticket purchase created successfully",
+            message: "Ticket purchase created successfully with seat bookings",
             data: {
-                ...newPurchase,
-                ticket_details: {
-                    ticket_count: ticketCount,
-                    price_per_ticket: ticketPrice,
-                    calculated_total: calculatedTotalPrice,
+                ...result,
+                price_breakdown: {
+                    total_price: calculatedTotalPrice,
+                    seat_count: seat_ids.length,
+                    base_price: schedule.price,
+                    seats: seatPrices.map(sp => ({
+                        seat_number: sp.seat_num,
+                        carriage_category: sp.category,
+                        price: sp.price
+                    }))
                 },
             },
         });

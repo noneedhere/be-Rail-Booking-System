@@ -127,6 +127,18 @@ export const createSeat = async (request: Request, response: Response) => {
             })
         }
 
+        const currentSeatCount = await prisma.seat.count({
+            where: { id_carriage: Number(id_carriage) }
+        });
+
+        if (currentSeatCount >= findCarriage.quota) {
+            return response.status(400).json({
+                status: false,
+                message: `Carriage quota (${findCarriage.quota}) exceeded`
+            });
+        }
+
+
         const newSeat = await prisma.seat.create({
             data: {
                 seat_num,
@@ -165,7 +177,7 @@ export const createSeat = async (request: Request, response: Response) => {
 export const updateSeat = async (request: Request, response: Response) => {
     try {
         const { id } = request.params
-        const { seat_num, carriage_id } = request.body
+        const { seat_num, id_carriage } = request.body
 
         const findSeat = await prisma.seat.findUnique({
             where: { id_seat: Number(id) },
@@ -178,9 +190,9 @@ export const updateSeat = async (request: Request, response: Response) => {
             })
         }
 
-        if (carriage_id) {
+        if (id_carriage) {
             const findCarriage = await prisma.carriage.findUnique({
-                where: { id_carriage: Number(carriage_id) },
+                where: { id_carriage: Number(id_carriage) },
             })
 
             if (!findCarriage) {
@@ -195,7 +207,7 @@ export const updateSeat = async (request: Request, response: Response) => {
             where: { id_seat: Number(id) },
             data: {
                 seat_num: seat_num ?? findSeat.seat_num,
-                carriage_id: carriage_id ? Number(carriage_id) : findSeat.carriage_id,
+                id_carriage: id_carriage ? Number(id_carriage) : findSeat.id_carriage,
             },
             include: {
                 carriage: {

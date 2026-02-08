@@ -27,9 +27,9 @@ const upload = multer({ storage })
 
 app.get("/", getAllUsers)
 app.get("/:id", getUserById)
-app.post("/", upload.none(), createUser)
+app.post("/", upload.single("profile_picture"), createUser)
 app.put("/:id", upload.none(), updateUser)
-app.put("/picture/:id", upload.single("profilePicture"), changePicture)
+app.put("/picture/:id", upload.single("profile_picture"), changePicture)
 app.delete("/:id", deleteUser)
 
 app.post("/login", authentication)

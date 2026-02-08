@@ -27,16 +27,16 @@ model carriage {
 
 model schedule {
   id_schedule    Int      @id @default(autoincrement())
+  schedule_name  String
   departure      String
   destination    String
   departure_date DateTime
   arrival_date   DateTime
-  adult_price    Float
-  child_price    Float
+  price          Float
   quota_total    Int
   status         status   @default(ACTIVED)
 
-  id_train        Int
+  id_train Int
 
   train           train             @relation(fields: [id_train], references: [id_train], map: "Schedule_trainId_fkey")
   seat_schedule   seat_schedule[]
@@ -60,7 +60,7 @@ model seat_schedule {
   id_seat_schedule                Int                 @id @default(autoincrement())
   id_seat                         Int
   id_schedule                     Int
-  status                          seatschedule_status @default(AVAILABLE)
+  seatschedule_status             seatschedule_status @default(AVAILABLE)
   purchaseDetailId_purchasedetail Int?
   purchase_detail                 purchase_detail?    @relation(fields: [purchaseDetailId_purchasedetail], references: [id_purchasedetail], map: "SeatSchedule_purchaseDetailId_purchasedetail_fkey")
   schedule                        schedule            @relation(fields: [id_schedule], references: [id_schedule], map: "SeatSchedule_scheduleId_fkey")
@@ -105,10 +105,11 @@ model purchase_detail {
 }
 
 model train {
-  id_train      Int        @id @default(autoincrement())
+  id_train      Int          @id @default(autoincrement())
   train_name    String
   description   String
-  train_picture String     @default("")
+  train_picture String       @default("")
+  train_status  train_status @default(AVAILABLE)
   carriage      carriage[]
   schedule      schedule[]
 }
@@ -135,8 +136,8 @@ enum seatschedule_status {
 }
 
 enum carriage_category {
-  EKSEKUTIVE
-  BUSSINESS
+  EXECUTIVE
+  BUSINESS
   ECONOMY
 }
 
@@ -149,4 +150,9 @@ enum status {
   FINISHED
   CANCELLED
   ACTIVED
+}
+
+enum train_status {
+  AVAILABLE
+  ACTIVE
 }

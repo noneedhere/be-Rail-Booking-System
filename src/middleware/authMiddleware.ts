@@ -1,4 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { SECRET } from "../global.js";
 
 interface AuthRequest extends Request {
     user?: {
@@ -11,35 +13,35 @@ interface AuthRequest extends Request {
 
 export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-        // For now, this is a placeholder middleware
-        // You should implement proper JWT token verification here
+        // Get token from Authorization header
+        const authHeader = req.headers.authorization;
 
-        // Example: Get user from header or session
-        const userId = req.headers['x-user-id'];
-        const username = req.headers['x-username'];
-        const email = req.headers['x-user-email'];
-        const phone = req.headers['x-user-phone'];
-
-        if (!userId) {
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return res.status(401).json({
                 status: false,
-                message: "Unauthorized. Please provide user credentials",
+                message: "Unauthorized. No token provided",
             });
         }
 
+        // Extract token (remove "Bearer " prefix)
+        const token = authHeader.substring(7);
+
+        // Verify token
+        const decoded = jwt.verify(token, SECRET || "joss") as any;
+
         // Attach user to request
         req.user = {
-            id: Number(userId),
-            username: username as string || "Unknown",
-            email: email as string,
-            phone: phone as string,
+            id: decoded.id,
+            username: decoded.username,
+            email: decoded.email,
+            phone: decoded.phone,
         };
 
         next();
     } catch (error) {
         return res.status(401).json({
             status: false,
-            message: "Authentication failed",
+            message: "Invalid or expired token",
         });
     }
 };

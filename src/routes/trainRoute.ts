@@ -27,7 +27,7 @@ const upload = multer({ storage })
 
 app.get("/", getAllTrain)
 app.get("/:id", getTrainById)
-app.post("/", upload.none(), createTrain)
+app.post("/", upload.single("train_picture"), createTrain)
 app.put("/:id", upload.none(), updateTrain)
 app.put("/picture/:id", upload.single("train_picture"), changePicture)
 app.delete("/:id", deleteTrain)
