@@ -8,6 +8,8 @@ import {
     changePicture,
 
 } from "../controllers/trainController.js"
+import { authMiddleware } from "../middleware/authMiddleware.js"
+import { roleGuard } from "../middleware/roleGuard.js"
 
 import multer from "multer"
 import path from "path"
@@ -25,11 +27,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-app.get("/", getAllTrain)
-app.get("/:id", getTrainById)
-app.post("/", upload.single("train_picture"), createTrain)
-app.put("/:id", upload.none(), updateTrain)
-app.put("/picture/:id", upload.single("train_picture"), changePicture)
-app.delete("/:id", deleteTrain)
+// All train routes are admin-only (CRUD operations)
+app.get("/", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getAllTrain)
+app.get("/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getTrainById)
+app.post("/", authMiddleware, roleGuard('ADMIN'), upload.single("train_picture"), createTrain)
+app.put("/:id", authMiddleware, roleGuard('ADMIN'), upload.none(), updateTrain)
+app.put("/picture/:id", authMiddleware, roleGuard('ADMIN'), upload.single("train_picture"), changePicture)
+app.delete("/:id", authMiddleware, roleGuard('ADMIN'), deleteTrain)
 
 export default app

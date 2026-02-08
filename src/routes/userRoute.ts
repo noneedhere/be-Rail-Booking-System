@@ -5,9 +5,10 @@ import {
     createUser,
     updateUser,
     deleteUser,
-    changePicture,
-    authentication
+    changePicture
 } from "../controllers/userController.js"
+import { authMiddleware } from "../middleware/authMiddleware.js"
+import { roleGuard } from "../middleware/roleGuard.js"
 
 import multer from "multer"
 import path from "path"
@@ -25,13 +26,16 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
+// Admin only routes
 app.get("/", getAllUsers)
-app.get("/:id", getUserById)
 app.post("/", upload.single("profile_picture"), createUser)
-app.put("/:id", upload.none(), updateUser)
-app.put("/picture/:id", upload.single("profile_picture"), changePicture)
-app.delete("/:id", deleteUser)
+// app.get("/", authMiddleware, roleGuard('ADMIN'), getAllUsers)
+// app.post("/", authMiddleware, roleGuard('ADMIN'), upload.single("profile_picture"), createUser)
+app.delete("/:id", authMiddleware, roleGuard('ADMIN'), deleteUser)
 
-app.post("/login", authentication)
+// Admin or owner routes (users can view/update their own profile)
+app.get("/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getUserById)
+app.put("/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), upload.none(), updateUser)
+app.put("/picture/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), upload.single("profile_picture"), changePicture)
 
 export default app

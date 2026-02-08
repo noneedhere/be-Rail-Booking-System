@@ -24,12 +24,23 @@ export const getAllTrain = async (request: Request, response: Response) => {
                     contains: search?.toString() || "",
                 },
             },
-            select: {
-                id_train: true,
-                train_name: true,
-                description: true,
-                train_status: true,
+            include: {
+                carriage: {
+                    include: {
+                        seat: {
+                            orderBy: {
+                                seat_num: 'asc'
+                            }
+                        }
+                    },
+                    orderBy: {
+                        carriage_name: 'asc'
+                    }
+                }
             },
+            orderBy: {
+                train_name: 'asc'
+            }
         });
 
         return response.status(200).json({
@@ -51,12 +62,20 @@ export const getTrainById = async (request: Request, response: Response) => {
 
         const train = await prisma.train.findUnique({
             where: { id_train: Number(id) },
-            select: {
-                id_train: true,
-                train_name: true,
-                description: true,
-                train_status: true,
-            },
+            include: {
+                carriage: {
+                    include: {
+                        seat: {
+                            orderBy: {
+                                seat_num: 'asc'
+                            }
+                        }
+                    },
+                    orderBy: {
+                        carriage_name: 'asc'
+                    }
+                }
+            }
         });
 
         if (!train) {

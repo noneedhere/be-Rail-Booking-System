@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import path from "path"
+import authRoute from "./routes/authRoute.js"
 import userRoute from "./routes/userRoute.js"
 import { fileURLToPath } from "url"
 import trainRoute from "./routes/trainRoute.js"
@@ -18,11 +19,16 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// app.use(
-//     "/profilePicture",
-//     express.static(path.join(__dirname, "../public/profilePicture"))
-// )
+// Serve static files for profile pictures
+app.use(
+    "/profilePicture",
+    express.static(path.join(__dirname, "../public/profilePicture"))
+)
 
+// Public routes (no authentication required)
+app.use("/auth", authRoute)
+
+// Protected routes (authentication required, role-based access)
 app.use("/user", userRoute)
 app.use("/train", trainRoute)
 app.use("/carriage", carriageRoute)

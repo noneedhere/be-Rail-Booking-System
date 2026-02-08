@@ -49,9 +49,9 @@ model seat {
   id_seat         Int               @id @default(autoincrement())
   seat_num        String
   id_carriage     Int
+  seat_schedule   seat_schedule[]
   purchase_detail purchase_detail[]
   carriage        carriage          @relation(fields: [id_carriage], references: [id_carriage], map: "Seat_carriageId_fkey")
-  seat_schedule   seat_schedule[]
 
   @@index([id_carriage], map: "Seat_carriageId_fkey")
 }

@@ -3,9 +3,8 @@ import { PrismaClient } from "../../generated/prisma/index.js";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { BASE_URL, SECRET } from "../global.js";
 import fs from "fs";
-import md5 from "md5";
+import bcrypt from "bcrypt";
 import multer from "multer";
-import jwt from "jsonwebtoken";
 
 const adapter = new PrismaMariaDb(
     {
@@ -16,6 +15,8 @@ const adapter = new PrismaMariaDb(
 )
 
 const prisma: any = new PrismaClient({ adapter });
+
+const SALT_ROUNDS = 10;
 
 export const getAllUsers = async (request: Request, response: Response) => {
     try {
@@ -87,11 +88,19 @@ export const createUser = async (request: Request, response: Response) => {
         let filename = ""
         if (request.file) filename = request.file.filename
 
-        // Validasi minimal
+        // Validate required fields
         if (!username || !email || !password || !phone) {
             return response.status(400).json({
                 status: false,
                 message: "username, email, password, and phone required",
+            });
+        }
+
+        // Validate role enum
+        if (role && role !== 'ADMIN' && role !== 'CUSTOMER') {
+            return response.status(400).json({
+                status: false,
+                message: "role must be either 'ADMIN' or 'CUSTOMER'",
             });
         }
 
@@ -106,14 +115,17 @@ export const createUser = async (request: Request, response: Response) => {
 
         const nik = `NIK${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
+        // Hash password with bcrypt
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
         const newUser = await prisma.user.create({
             data: {
                 username,
                 email,
-                password: md5(password),
+                password: hashedPassword,
                 phone,
                 nik,
-                role,
+                role: role || 'CUSTOMER',
                 profile_picture: filename || ""
             },
         });
@@ -153,13 +165,24 @@ export const updateUser = async (request: Request, response: Response) => {
             });
         }
 
+        // Validate role if provided
+        if (role && role !== 'ADMIN' && role !== 'CUSTOMER') {
+            return response.status(400).json({
+                status: false,
+                message: "role must be either 'ADMIN' or 'CUSTOMER'",
+            });
+        }
+
+        // Hash password with bcrypt if provided
+        const hashedPassword = password ? await bcrypt.hash(password, SALT_ROUNDS) : findUser.password;
+
         const updated = await prisma.user.update({
             where: { id_user: Number(id) },
             data: {
                 username: username ?? findUser.username,
                 address: address ?? findUser.address,
                 phone: phone ?? findUser.phone,
-                password: password ? md5(password) : findUser.password,
+                password: hashedPassword,
                 role: role ?? findUser.role,
             },
         })
@@ -250,48 +273,6 @@ export const deleteUser = async (request: Request, response: Response) => {
     }
 };
 
-export const authentication = async (req: Request, res: Response) => {
-    try {
-        const { username, password } = req.body;
-
-        const user = await prisma.user.findFirst({
-            where: {
-                username,
-                password: md5(password)
-            }
-        });
-
-        if (!user) {
-            return res.status(401).json({
-                status: false,
-                logged: false,
-                message: "Username or password is invalid"
-            });
-        }
-
-        const payload = {
-            id: user.id_user,
-            username: user.username,
-            role: user.role,
-            email: user.email,
-            phone: user.phone
-        };
-
-        // Generate JWT token
-        const token = jwt.sign(payload, SECRET || "joss", {
-            expiresIn: "1d"
-        });
-
-        return res.status(200).json({
-            status: true,
-            logged: true,
-            data: payload,
-            token
-        });
-    } catch (error) {
-        return res.status(500).json({
-            status: false,
-            message: error instanceof Error ? error.message : "Server error"
-        });
-    }
-};
+// Authentication has been moved to authController.ts
+// This function is kept for backward compatibility but should not be used
+// Use POST /auth/login instead

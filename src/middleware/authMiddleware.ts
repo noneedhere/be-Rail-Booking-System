@@ -2,16 +2,14 @@ import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { SECRET } from "../global.js";
 
-interface AuthRequest extends Request {
-    user?: {
-        id: number;
-        username: string;
-        email?: string;
-        phone?: string;
-    };
-}
-
-export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+/**
+ * Authentication middleware
+ * Verifies JWT token from Authorization header and attaches user data to request
+ * 
+ * @example
+ * app.get('/protected', authMiddleware, controller);
+ */
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try {
         // Get token from Authorization header
         const authHeader = req.headers.authorization;
@@ -29,12 +27,11 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
         // Verify token
         const decoded = jwt.verify(token, SECRET || "joss") as any;
 
-        // Attach user to request
+        // Attach user to request with proper field names matching schema
         req.user = {
-            id: decoded.id,
-            username: decoded.username,
+            id_user: decoded.id_user,
             email: decoded.email,
-            phone: decoded.phone,
+            role: decoded.role,
         };
 
         next();

@@ -6,6 +6,8 @@ import {
     updateSchedule,
     deleteSchedule,
 } from "../controllers/scheduleController.js"
+import { authMiddleware } from "../middleware/authMiddleware.js"
+import { roleGuard } from "../middleware/roleGuard.js"
 
 import multer from "multer"
 import path from "path"
@@ -23,9 +25,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-app.get("/", getAllSchedule)
-app.get("/:id", getScheduleById)
-app.post("/", upload.none(), createSchedule)
-app.put("/:id", upload.none(), updateSchedule)
-app.delete("/:id", deleteSchedule)
+// View schedules - authenticated users (both admin and customer)
+app.get("/", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getAllSchedule)
+app.get("/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getScheduleById)
+
+// CRUD operations - admin only
+app.post("/", authMiddleware, roleGuard('ADMIN'), upload.none(), createSchedule)
+app.put("/:id", authMiddleware, roleGuard('ADMIN'), upload.none(), updateSchedule)
+app.delete("/:id", authMiddleware, roleGuard('ADMIN'), deleteSchedule)
 export default app
