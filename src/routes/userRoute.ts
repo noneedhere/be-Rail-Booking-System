@@ -24,18 +24,35 @@ const storage = multer.diskStorage({
     }
 })
 
-const upload = multer({ storage })
+const upload = multer({
+    storage,
+    limits: {
+        fileSize: 50 * 1024 * 1024 // 50MB limit
+    },
+    fileFilter: (_req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|gif/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed!'));
+        }
+    }
+})
 
 // Admin only routes
-app.get("/", getAllUsers)
-app.post("/", upload.single("profile_picture"), createUser)
-// app.get("/", authMiddleware, roleGuard('ADMIN'), getAllUsers)
-// app.post("/", authMiddleware, roleGuard('ADMIN'), upload.single("profile_picture"), createUser)
+app.get("/", authMiddleware, roleGuard('ADMIN'), getAllUsers)
+app.post("/", authMiddleware, roleGuard('ADMIN'), upload.single("profile_picture"), createUser)
 app.delete("/:id", authMiddleware, roleGuard('ADMIN'), deleteUser)
+
+// IMPORTANT: Specific routes MUST come before generic /:id routes
+// Picture upload route (must be before /:id)
+app.put("/picture/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), upload.single("profile_picture"), changePicture)
 
 // Admin or owner routes (users can view/update their own profile)
 app.get("/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getUserById)
 app.put("/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), upload.none(), updateUser)
-app.put("/picture/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), upload.single("profile_picture"), changePicture)
 
 export default app

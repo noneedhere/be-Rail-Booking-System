@@ -1,5 +1,5 @@
 import express from "express";
-import { register, login } from "../controllers/authController.js";
+import { register, login, verifyToken } from "../controllers/authController.js";
 
 const app = express();
 
@@ -13,5 +13,8 @@ app.post("/register", register);
 
 // Login user
 app.post("/login", login);
+
+// Verify token (used by frontend middleware)
+app.get("/verify", verifyToken);
 
 export default app;

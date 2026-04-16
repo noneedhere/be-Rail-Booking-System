@@ -10,6 +10,12 @@ const adapter = new PrismaMariaDb({
 
 const prisma: any = new PrismaClient({ adapter });
 
+// WIB timezone offset (+7 hours from UTC)
+const WIB_OFFSET = 7 * 60 * 60 * 1000;
+function getNowWIB(): Date {
+    return new Date(new Date().getTime() + WIB_OFFSET);
+}
+
 export const createTicketPurchase = async (req: Request, res: Response) => {
     try {
         const { id_schedule, buyer_name, buyer_email, buyer_phone, seat_ids } = req.body;
@@ -57,8 +63,8 @@ export const createTicketPurchase = async (req: Request, res: Response) => {
             });
         }
 
-        // Validate schedule dates
-        const currentDate = new Date();
+        // Validate schedule dates (using WIB timezone)
+        const currentDate = getNowWIB();
         const departureDate = new Date(schedule.departure_date);
         const arrivalDate = new Date(schedule.arrival_date);
 
@@ -372,7 +378,8 @@ export const getPurchaseById = async (req: Request, res: Response) => {
             });
         }
 
-        if (purchase.id_user !== req.user.id_user) {
+        // Access control: Admin can view any purchase, customers can only view their own
+        if (req.user.role !== 'ADMIN' && purchase.id_user !== req.user.id_user) {
             return res.status(403).json({
                 status: false,
                 message: "Forbidden. You can only view your own purchases",

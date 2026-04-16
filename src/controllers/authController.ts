@@ -24,13 +24,15 @@ const SALT_ROUNDS = 10;
  */
 export const register = async (req: Request, res: Response) => {
     try {
-        const { username, email, password, role, phone, address } = req.body;
+        const { username, email, password, phone, address } = req.body;
+        // Default role to CUSTOMER if not provided (for public registration)
+        const role = req.body.role || 'CUSTOMER';
 
         // Validate required fields
-        if (!username || !email || !password || !role) {
+        if (!username || !email || !password) {
             return res.status(400).json({
                 status: false,
-                message: "username, email, password, and role are required",
+                message: "username, email, and password are required",
             });
         }
 
@@ -74,7 +76,19 @@ export const register = async (req: Request, res: Response) => {
             },
         });
 
-        // Return user data without password
+        // Create JWT payload for auto-login
+        const payload = {
+            id_user: newUser.id_user,
+            email: newUser.email,
+            role: newUser.role,
+        };
+
+        // Generate JWT token
+        const token = jwt.sign(payload, SECRET || "joss", {
+            expiresIn: "24h",
+        });
+
+        // Return user data without password + token for auto-login
         return res.status(201).json({
             status: true,
             message: "User registered successfully",
@@ -86,6 +100,7 @@ export const register = async (req: Request, res: Response) => {
                 phone: newUser.phone,
                 address: newUser.address,
             },
+            token,
         });
     } catch (error) {
         return res.status(500).json({
@@ -99,29 +114,24 @@ export const register = async (req: Request, res: Response) => {
  * Login user
  * POST /auth/login
  * 
- * Accepts either email or username with password
+ * Requires email and password
  * Returns JWT token on success
  */
 export const login = async (req: Request, res: Response) => {
     try {
-        const { email, username, password } = req.body;
+        const { email, password } = req.body;
 
-        // Validate that either email or username is provided
-        if ((!email && !username) || !password) {
+        // Validate required fields
+        if (!email || !password) {
             return res.status(400).json({
                 status: false,
-                message: "Email or username, and password are required",
+                message: "Email and password are required",
             });
         }
 
-        // Find user by email or username
-        const user = await prisma.user.findFirst({
-            where: {
-                OR: [
-                    email ? { email } : {},
-                    username ? { username } : {},
-                ],
-            },
+        // Find user by email
+        const user = await prisma.user.findUnique({
+            where: { email },
         });
 
         if (!user) {
@@ -160,10 +170,11 @@ export const login = async (req: Request, res: Response) => {
             logged: true,
             message: "Login successful",
             data: {
-                id_user: user.id_user,
-                username: user.username,
+                id: user.id_user,
+                name: user.username,
                 email: user.email,
                 role: user.role,
+                profile_picture: user.profile_picture || "",
             },
             token,
         });
@@ -171,6 +182,57 @@ export const login = async (req: Request, res: Response) => {
         return res.status(500).json({
             status: false,
             message: `Login failed. ${error}`,
+        });
+    }
+};
+
+/**
+ * Verify JWT token
+ * GET /auth/verify
+ * 
+ * Used by frontend middleware to validate tokens server-side
+ * Returns user data if token is valid
+ */
+export const verifyToken = async (req: Request, res: Response) => {
+    try {
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({
+                status: false,
+                message: "No token provided",
+            });
+        }
+
+        const token = authHeader.substring(7);
+        const decoded = jwt.verify(token, SECRET || "joss") as any;
+
+        // Optionally verify user still exists in database
+        const user = await prisma.user.findUnique({
+            where: { id_user: decoded.id_user },
+            select: { id_user: true, email: true, role: true }
+        });
+
+        if (!user) {
+            return res.status(401).json({
+                status: false,
+                message: "User no longer exists",
+            });
+        }
+
+        return res.status(200).json({
+            status: true,
+            message: "Token is valid",
+            data: {
+                id_user: user.id_user,
+                email: user.email,
+                role: user.role,
+            }
+        });
+    } catch (error) {
+        return res.status(401).json({
+            status: false,
+            message: "Invalid or expired token",
         });
     }
 };

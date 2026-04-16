@@ -31,7 +31,8 @@ export const getAllUsers = async (request: Request, response: Response) => {
             select: {
                 id_user: true,
                 username: true,
-                role: true
+                role: true,
+                profile_picture: true
             },
         });
 
@@ -57,7 +58,8 @@ export const getUserById = async (request: Request, response: Response) => {
             select: {
                 id_user: true,
                 username: true,
-                role: true
+                role: true,
+                profile_picture: true
             },
         });
 
@@ -202,28 +204,22 @@ export const updateUser = async (request: Request, response: Response) => {
 
 export const changePicture = async (request: any, response: Response) => {
     try {
-        /** get id of menu's id that sent in parameter of URL */
+
         const { id } = request.params
 
-        /** make sure that data is exists in database */
         const findUser = await prisma.user.findFirst({ where: { id_user: Number(id) } })
         if (!findUser) return response
             .status(404)
             .json({ status: false, message: `User is not found` })
 
-        /** default value filename of saved data */
         let filename = findUser.profile_picture
         if (request.file) {
-            /** update filename by new uploaded picture */
             filename = request.file.filename
-            /** check the old picture in the folder */
             let path = `${BASE_URL}/../public/profilePicture/${findUser.profile_picture}`
             let exists = fs.existsSync(path)
-            /** delete the old exists picture if reupload new file */
             if (exists && findUser.profile_picture !== ``) fs.unlinkSync(path)
         }
 
-        /** process to update picture in database */
         const updatePicture = await prisma.user.update({
             data: { profile_picture: filename },
             where: { id_user: Number(id) }

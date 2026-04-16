@@ -15,19 +15,18 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         const authHeader = req.headers.authorization;
 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            console.log("No valid token provided");
             return res.status(401).json({
                 status: false,
                 message: "Unauthorized. No token provided",
             });
         }
 
-        // Extract token (remove "Bearer " prefix)
         const token = authHeader.substring(7);
 
-        // Verify token
         const decoded = jwt.verify(token, SECRET || "joss") as any;
+        console.log('Token verified, user:', decoded.email, 'role:', decoded.role);
 
-        // Attach user to request with proper field names matching schema
         req.user = {
             id_user: decoded.id_user,
             email: decoded.email,

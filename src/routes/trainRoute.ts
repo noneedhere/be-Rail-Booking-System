@@ -25,14 +25,23 @@ const storage = multer.diskStorage({
     }
 })
 
-const upload = multer({ storage })
+const upload = multer({
+    storage,
+    limits: {
+        fileSize: 50 * 1024 * 1024 // 50MB limit
+    }
+})
 
 // All train routes are admin-only (CRUD operations)
 app.get("/", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getAllTrain)
 app.get("/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getTrainById)
 app.post("/", authMiddleware, roleGuard('ADMIN'), upload.single("train_picture"), createTrain)
-app.put("/:id", authMiddleware, roleGuard('ADMIN'), upload.none(), updateTrain)
+
+// IMPORTANT: Specific routes MUST come before generic /:id routes
+// Picture upload route (must be before /:id)
 app.put("/picture/:id", authMiddleware, roleGuard('ADMIN'), upload.single("train_picture"), changePicture)
+
+app.put("/:id", authMiddleware, roleGuard('ADMIN'), upload.none(), updateTrain)
 app.delete("/:id", authMiddleware, roleGuard('ADMIN'), deleteTrain)
 
 export default app
