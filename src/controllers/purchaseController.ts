@@ -443,3 +443,47 @@ export const getAllPurchase = async (req: Request, res: Response) => {
         });
     }
 };
+
+export const deletePurchase = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const purchaseId = Number(id);
+
+        const purchase = await prisma.ticket_purchase.findUnique({
+            where: { id_ticketpurchase: purchaseId },
+            include: { purchase_detail: true },
+        });
+
+        if (!purchase) {
+            return res.status(404).json({
+                status: false,
+                message: "Ticket purchase not found",
+            });
+        }
+
+        await prisma.$transaction(async (tx: any) => {
+            // Reset seat_schedule status back to AVAILABLE
+            const detailIds = purchase.purchase_detail.map((d: any) => d.id_purchasedetail);
+            if (detailIds.length > 0) {
+                await tx.seat_schedule.updateMany({
+                    where: { purchaseDetailId_purchasedetail: { in: detailIds } },
+                    data: { seatschedule_status: "AVAILABLE", purchaseDetailId_purchasedetail: null },
+                });
+            }
+
+            // Delete purchase details then the purchase
+            await tx.purchase_detail.deleteMany({ where: { id_ticket_purchase: purchaseId } });
+            await tx.ticket_purchase.delete({ where: { id_ticketpurchase: purchaseId } });
+        });
+
+        return res.status(200).json({
+            status: true,
+            message: "Ticket purchase deleted successfully",
+        });
+    } catch (error) {
+        return res.status(400).json({
+            status: false,
+            message: `There is an error. ${error}`,
+        });
+    }
+};

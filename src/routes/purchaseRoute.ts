@@ -4,6 +4,7 @@ import {
     getPurchaseById,
     createTicketPurchase,
     getMyTicketPurchases,
+    deletePurchase,
 } from "../controllers/purchaseController.js"
 import { authMiddleware } from "../middleware/authMiddleware.js"
 import { roleGuard } from "../middleware/roleGuard.js"
@@ -24,5 +25,8 @@ router.get("/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getPurchaseBy
 
 // Authenticated users - create purchase
 router.post("/", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), upload.none(), createTicketPurchase)
+
+// Admin only - delete purchase
+router.delete("/:id", authMiddleware, roleGuard('ADMIN'), deletePurchase)
 
 export default router
