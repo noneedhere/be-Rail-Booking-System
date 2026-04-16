@@ -6,9 +6,9 @@ import {
     updateCarriage,
     deleteCarriage,
 } from "../controllers/carriageController.js"
-
+import { authMiddleware } from "../middleware/authMiddleware.js"
+import { roleGuard } from "../middleware/roleGuard.js"
 import multer from "multer"
-import path from "path"
 
 const app = express()
 
@@ -23,9 +23,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-app.get("/", getAllCarriage)
-app.get("/:id", getCarriageById)
-app.post("/", upload.none(), createCarriage)
-app.put("/:id", upload.none(), updateCarriage)
-app.delete("/:id", deleteCarriage)
+// All carriage routes are admin-only (CRUD operations)
+app.get("/", authMiddleware, roleGuard('ADMIN'), getAllCarriage)
+app.get("/:id", authMiddleware, roleGuard('ADMIN'), getCarriageById)
+app.post("/", authMiddleware, roleGuard('ADMIN'), upload.none(), createCarriage)
+app.put("/:id", authMiddleware, roleGuard('ADMIN'), upload.none(), updateCarriage)
+app.delete("/:id", authMiddleware, roleGuard('ADMIN'), deleteCarriage)
 export default app

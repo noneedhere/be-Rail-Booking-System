@@ -6,6 +6,8 @@ import {
     updateSeat,
     deleteSeat,
 } from "../controllers/seatController.js"
+import { authMiddleware } from "../middleware/authMiddleware.js"
+import { roleGuard } from "../middleware/roleGuard.js"
 
 import multer from "multer"
 import path from "path"
@@ -23,9 +25,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-app.get("/", getAllSeat)
-app.get("/:id", getSeatById)
-app.post("/", upload.none(), createSeat)
-app.put("/:id", upload.none(), updateSeat)
-app.delete("/:id", deleteSeat)
+// All seat routes are admin-only (CRUD operations)
+app.get("/", authMiddleware, roleGuard('ADMIN'), getAllSeat)
+app.get("/:id", authMiddleware, roleGuard('ADMIN'), getSeatById)
+app.post("/", authMiddleware, roleGuard('ADMIN'), upload.none(), createSeat)
+app.put("/:id", authMiddleware, roleGuard('ADMIN'), upload.none(), updateSeat)
+app.delete("/:id", authMiddleware, roleGuard('ADMIN'), deleteSeat)
 export default app

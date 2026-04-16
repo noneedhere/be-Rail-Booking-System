@@ -1,45 +1,43 @@
 import type { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { SECRET } from "../global.js";
 
-interface AuthRequest extends Request {
-    user?: {
-        id: number;
-        username: string;
-        email?: string;
-        phone?: string;
-    };
-}
-
-export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+/**
+ * Authentication middleware
+ * Verifies JWT token from Authorization header and attaches user data to request
+ * 
+ * @example
+ * app.get('/protected', authMiddleware, controller);
+ */
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try {
-        // For now, this is a placeholder middleware
-        // You should implement proper JWT token verification here
+        // Get token from Authorization header
+        const authHeader = req.headers.authorization;
 
-        // Example: Get user from header or session
-        const userId = req.headers['x-user-id'];
-        const username = req.headers['x-username'];
-        const email = req.headers['x-user-email'];
-        const phone = req.headers['x-user-phone'];
-
-        if (!userId) {
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            console.log("No valid token provided");
             return res.status(401).json({
                 status: false,
-                message: "Unauthorized. Please provide user credentials",
+                message: "Unauthorized. No token provided",
             });
         }
 
-        // Attach user to request
+        const token = authHeader.substring(7);
+
+        const decoded = jwt.verify(token, SECRET || "joss") as any;
+        console.log('Token verified, user:', decoded.email, 'role:', decoded.role);
+
         req.user = {
-            id: Number(userId),
-            username: username as string || "Unknown",
-            email: email as string,
-            phone: phone as string,
+            id_user: decoded.id_user,
+            email: decoded.email,
+            role: decoded.role,
         };
 
         next();
     } catch (error) {
         return res.status(401).json({
             status: false,
-            message: "Authentication failed",
+            message: "Invalid or expired token",
         });
     }
 };

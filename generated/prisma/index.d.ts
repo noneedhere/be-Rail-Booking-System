@@ -67,8 +67,8 @@ export type seatschedule_status = (typeof seatschedule_status)[keyof typeof seat
 
 
 export const carriage_category: {
-  EKSEKUTIVE: 'EKSEKUTIVE',
-  BUSSINESS: 'BUSSINESS',
+  EXECUTIVE: 'EXECUTIVE',
+  BUSINESS: 'BUSINESS',
   ECONOMY: 'ECONOMY'
 };
 
@@ -91,6 +91,14 @@ export const status: {
 
 export type status = (typeof status)[keyof typeof status]
 
+
+export const train_status: {
+  AVAILABLE: 'AVAILABLE',
+  ACTIVE: 'ACTIVE'
+};
+
+export type train_status = (typeof train_status)[keyof typeof train_status]
+
 }
 
 export type seatschedule_status = $Enums.seatschedule_status
@@ -108,6 +116,10 @@ export const user_role: typeof $Enums.user_role
 export type status = $Enums.status
 
 export const status: typeof $Enums.status
+
+export type train_status = $Enums.train_status
+
+export const train_status: typeof $Enums.train_status
 
 /**
  * ##  Prisma Client ʲˢ
@@ -2748,28 +2760,26 @@ export namespace Prisma {
 
   export type ScheduleAvgAggregateOutputType = {
     id_schedule: number | null
-    adult_price: number | null
-    child_price: number | null
+    price: number | null
     quota_total: number | null
     id_train: number | null
   }
 
   export type ScheduleSumAggregateOutputType = {
     id_schedule: number | null
-    adult_price: number | null
-    child_price: number | null
+    price: number | null
     quota_total: number | null
     id_train: number | null
   }
 
   export type ScheduleMinAggregateOutputType = {
     id_schedule: number | null
+    schedule_name: string | null
     departure: string | null
     destination: string | null
     departure_date: Date | null
     arrival_date: Date | null
-    adult_price: number | null
-    child_price: number | null
+    price: number | null
     quota_total: number | null
     status: $Enums.status | null
     id_train: number | null
@@ -2777,12 +2787,12 @@ export namespace Prisma {
 
   export type ScheduleMaxAggregateOutputType = {
     id_schedule: number | null
+    schedule_name: string | null
     departure: string | null
     destination: string | null
     departure_date: Date | null
     arrival_date: Date | null
-    adult_price: number | null
-    child_price: number | null
+    price: number | null
     quota_total: number | null
     status: $Enums.status | null
     id_train: number | null
@@ -2790,12 +2800,12 @@ export namespace Prisma {
 
   export type ScheduleCountAggregateOutputType = {
     id_schedule: number
+    schedule_name: number
     departure: number
     destination: number
     departure_date: number
     arrival_date: number
-    adult_price: number
-    child_price: number
+    price: number
     quota_total: number
     status: number
     id_train: number
@@ -2805,28 +2815,26 @@ export namespace Prisma {
 
   export type ScheduleAvgAggregateInputType = {
     id_schedule?: true
-    adult_price?: true
-    child_price?: true
+    price?: true
     quota_total?: true
     id_train?: true
   }
 
   export type ScheduleSumAggregateInputType = {
     id_schedule?: true
-    adult_price?: true
-    child_price?: true
+    price?: true
     quota_total?: true
     id_train?: true
   }
 
   export type ScheduleMinAggregateInputType = {
     id_schedule?: true
+    schedule_name?: true
     departure?: true
     destination?: true
     departure_date?: true
     arrival_date?: true
-    adult_price?: true
-    child_price?: true
+    price?: true
     quota_total?: true
     status?: true
     id_train?: true
@@ -2834,12 +2842,12 @@ export namespace Prisma {
 
   export type ScheduleMaxAggregateInputType = {
     id_schedule?: true
+    schedule_name?: true
     departure?: true
     destination?: true
     departure_date?: true
     arrival_date?: true
-    adult_price?: true
-    child_price?: true
+    price?: true
     quota_total?: true
     status?: true
     id_train?: true
@@ -2847,12 +2855,12 @@ export namespace Prisma {
 
   export type ScheduleCountAggregateInputType = {
     id_schedule?: true
+    schedule_name?: true
     departure?: true
     destination?: true
     departure_date?: true
     arrival_date?: true
-    adult_price?: true
-    child_price?: true
+    price?: true
     quota_total?: true
     status?: true
     id_train?: true
@@ -2947,12 +2955,12 @@ export namespace Prisma {
 
   export type ScheduleGroupByOutputType = {
     id_schedule: number
+    schedule_name: string
     departure: string
     destination: string
     departure_date: Date
     arrival_date: Date
-    adult_price: number
-    child_price: number
+    price: number
     quota_total: number
     status: $Enums.status
     id_train: number
@@ -2979,12 +2987,12 @@ export namespace Prisma {
 
   export type scheduleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id_schedule?: boolean
+    schedule_name?: boolean
     departure?: boolean
     destination?: boolean
     departure_date?: boolean
     arrival_date?: boolean
-    adult_price?: boolean
-    child_price?: boolean
+    price?: boolean
     quota_total?: boolean
     status?: boolean
     id_train?: boolean
@@ -2998,18 +3006,18 @@ export namespace Prisma {
 
   export type scheduleSelectScalar = {
     id_schedule?: boolean
+    schedule_name?: boolean
     departure?: boolean
     destination?: boolean
     departure_date?: boolean
     arrival_date?: boolean
-    adult_price?: boolean
-    child_price?: boolean
+    price?: boolean
     quota_total?: boolean
     status?: boolean
     id_train?: boolean
   }
 
-  export type scheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id_schedule" | "departure" | "destination" | "departure_date" | "arrival_date" | "adult_price" | "child_price" | "quota_total" | "status" | "id_train", ExtArgs["result"]["schedule"]>
+  export type scheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id_schedule" | "schedule_name" | "departure" | "destination" | "departure_date" | "arrival_date" | "price" | "quota_total" | "status" | "id_train", ExtArgs["result"]["schedule"]>
   export type scheduleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     train?: boolean | trainDefaultArgs<ExtArgs>
     seat_schedule?: boolean | schedule$seat_scheduleArgs<ExtArgs>
@@ -3026,12 +3034,12 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id_schedule: number
+      schedule_name: string
       departure: string
       destination: string
       departure_date: Date
       arrival_date: Date
-      adult_price: number
-      child_price: number
+      price: number
       quota_total: number
       status: $Enums.status
       id_train: number
@@ -3408,12 +3416,12 @@ export namespace Prisma {
    */
   interface scheduleFieldRefs {
     readonly id_schedule: FieldRef<"schedule", 'Int'>
+    readonly schedule_name: FieldRef<"schedule", 'String'>
     readonly departure: FieldRef<"schedule", 'String'>
     readonly destination: FieldRef<"schedule", 'String'>
     readonly departure_date: FieldRef<"schedule", 'DateTime'>
     readonly arrival_date: FieldRef<"schedule", 'DateTime'>
-    readonly adult_price: FieldRef<"schedule", 'Float'>
-    readonly child_price: FieldRef<"schedule", 'Float'>
+    readonly price: FieldRef<"schedule", 'Float'>
     readonly quota_total: FieldRef<"schedule", 'Int'>
     readonly status: FieldRef<"schedule", 'status'>
     readonly id_train: FieldRef<"schedule", 'Int'>
@@ -4859,7 +4867,7 @@ export namespace Prisma {
     id_seat_schedule: number | null
     id_seat: number | null
     id_schedule: number | null
-    status: $Enums.seatschedule_status | null
+    seatschedule_status: $Enums.seatschedule_status | null
     purchaseDetailId_purchasedetail: number | null
   }
 
@@ -4867,7 +4875,7 @@ export namespace Prisma {
     id_seat_schedule: number | null
     id_seat: number | null
     id_schedule: number | null
-    status: $Enums.seatschedule_status | null
+    seatschedule_status: $Enums.seatschedule_status | null
     purchaseDetailId_purchasedetail: number | null
   }
 
@@ -4875,7 +4883,7 @@ export namespace Prisma {
     id_seat_schedule: number
     id_seat: number
     id_schedule: number
-    status: number
+    seatschedule_status: number
     purchaseDetailId_purchasedetail: number
     _all: number
   }
@@ -4899,7 +4907,7 @@ export namespace Prisma {
     id_seat_schedule?: true
     id_seat?: true
     id_schedule?: true
-    status?: true
+    seatschedule_status?: true
     purchaseDetailId_purchasedetail?: true
   }
 
@@ -4907,7 +4915,7 @@ export namespace Prisma {
     id_seat_schedule?: true
     id_seat?: true
     id_schedule?: true
-    status?: true
+    seatschedule_status?: true
     purchaseDetailId_purchasedetail?: true
   }
 
@@ -4915,7 +4923,7 @@ export namespace Prisma {
     id_seat_schedule?: true
     id_seat?: true
     id_schedule?: true
-    status?: true
+    seatschedule_status?: true
     purchaseDetailId_purchasedetail?: true
     _all?: true
   }
@@ -5010,7 +5018,7 @@ export namespace Prisma {
     id_seat_schedule: number
     id_seat: number
     id_schedule: number
-    status: $Enums.seatschedule_status
+    seatschedule_status: $Enums.seatschedule_status
     purchaseDetailId_purchasedetail: number | null
     _count: Seat_scheduleCountAggregateOutputType | null
     _avg: Seat_scheduleAvgAggregateOutputType | null
@@ -5037,7 +5045,7 @@ export namespace Prisma {
     id_seat_schedule?: boolean
     id_seat?: boolean
     id_schedule?: boolean
-    status?: boolean
+    seatschedule_status?: boolean
     purchaseDetailId_purchasedetail?: boolean
     purchase_detail?: boolean | seat_schedule$purchase_detailArgs<ExtArgs>
     schedule?: boolean | scheduleDefaultArgs<ExtArgs>
@@ -5050,11 +5058,11 @@ export namespace Prisma {
     id_seat_schedule?: boolean
     id_seat?: boolean
     id_schedule?: boolean
-    status?: boolean
+    seatschedule_status?: boolean
     purchaseDetailId_purchasedetail?: boolean
   }
 
-  export type seat_scheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id_seat_schedule" | "id_seat" | "id_schedule" | "status" | "purchaseDetailId_purchasedetail", ExtArgs["result"]["seat_schedule"]>
+  export type seat_scheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id_seat_schedule" | "id_seat" | "id_schedule" | "seatschedule_status" | "purchaseDetailId_purchasedetail", ExtArgs["result"]["seat_schedule"]>
   export type seat_scheduleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     purchase_detail?: boolean | seat_schedule$purchase_detailArgs<ExtArgs>
     schedule?: boolean | scheduleDefaultArgs<ExtArgs>
@@ -5072,7 +5080,7 @@ export namespace Prisma {
       id_seat_schedule: number
       id_seat: number
       id_schedule: number
-      status: $Enums.seatschedule_status
+      seatschedule_status: $Enums.seatschedule_status
       purchaseDetailId_purchasedetail: number | null
     }, ExtArgs["result"]["seat_schedule"]>
     composites: {}
@@ -5449,7 +5457,7 @@ export namespace Prisma {
     readonly id_seat_schedule: FieldRef<"seat_schedule", 'Int'>
     readonly id_seat: FieldRef<"seat_schedule", 'Int'>
     readonly id_schedule: FieldRef<"seat_schedule", 'Int'>
-    readonly status: FieldRef<"seat_schedule", 'seatschedule_status'>
+    readonly seatschedule_status: FieldRef<"seat_schedule", 'seatschedule_status'>
     readonly purchaseDetailId_purchasedetail: FieldRef<"seat_schedule", 'Int'>
   }
     
@@ -7948,6 +7956,7 @@ export namespace Prisma {
     train_name: string | null
     description: string | null
     train_picture: string | null
+    train_status: $Enums.train_status | null
   }
 
   export type TrainMaxAggregateOutputType = {
@@ -7955,6 +7964,7 @@ export namespace Prisma {
     train_name: string | null
     description: string | null
     train_picture: string | null
+    train_status: $Enums.train_status | null
   }
 
   export type TrainCountAggregateOutputType = {
@@ -7962,6 +7972,7 @@ export namespace Prisma {
     train_name: number
     description: number
     train_picture: number
+    train_status: number
     _all: number
   }
 
@@ -7979,6 +7990,7 @@ export namespace Prisma {
     train_name?: true
     description?: true
     train_picture?: true
+    train_status?: true
   }
 
   export type TrainMaxAggregateInputType = {
@@ -7986,6 +7998,7 @@ export namespace Prisma {
     train_name?: true
     description?: true
     train_picture?: true
+    train_status?: true
   }
 
   export type TrainCountAggregateInputType = {
@@ -7993,6 +8006,7 @@ export namespace Prisma {
     train_name?: true
     description?: true
     train_picture?: true
+    train_status?: true
     _all?: true
   }
 
@@ -8087,6 +8101,7 @@ export namespace Prisma {
     train_name: string
     description: string
     train_picture: string
+    train_status: $Enums.train_status
     _count: TrainCountAggregateOutputType | null
     _avg: TrainAvgAggregateOutputType | null
     _sum: TrainSumAggregateOutputType | null
@@ -8113,6 +8128,7 @@ export namespace Prisma {
     train_name?: boolean
     description?: boolean
     train_picture?: boolean
+    train_status?: boolean
     carriage?: boolean | train$carriageArgs<ExtArgs>
     schedule?: boolean | train$scheduleArgs<ExtArgs>
     _count?: boolean | TrainCountOutputTypeDefaultArgs<ExtArgs>
@@ -8125,9 +8141,10 @@ export namespace Prisma {
     train_name?: boolean
     description?: boolean
     train_picture?: boolean
+    train_status?: boolean
   }
 
-  export type trainOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id_train" | "train_name" | "description" | "train_picture", ExtArgs["result"]["train"]>
+  export type trainOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id_train" | "train_name" | "description" | "train_picture" | "train_status", ExtArgs["result"]["train"]>
   export type trainInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     carriage?: boolean | train$carriageArgs<ExtArgs>
     schedule?: boolean | train$scheduleArgs<ExtArgs>
@@ -8145,6 +8162,7 @@ export namespace Prisma {
       train_name: string
       description: string
       train_picture: string
+      train_status: $Enums.train_status
     }, ExtArgs["result"]["train"]>
     composites: {}
   }
@@ -8520,6 +8538,7 @@ export namespace Prisma {
     readonly train_name: FieldRef<"train", 'String'>
     readonly description: FieldRef<"train", 'String'>
     readonly train_picture: FieldRef<"train", 'String'>
+    readonly train_status: FieldRef<"train", 'train_status'>
   }
     
 
@@ -10011,12 +10030,12 @@ export namespace Prisma {
 
   export const ScheduleScalarFieldEnum: {
     id_schedule: 'id_schedule',
+    schedule_name: 'schedule_name',
     departure: 'departure',
     destination: 'destination',
     departure_date: 'departure_date',
     arrival_date: 'arrival_date',
-    adult_price: 'adult_price',
-    child_price: 'child_price',
+    price: 'price',
     quota_total: 'quota_total',
     status: 'status',
     id_train: 'id_train'
@@ -10038,7 +10057,7 @@ export namespace Prisma {
     id_seat_schedule: 'id_seat_schedule',
     id_seat: 'id_seat',
     id_schedule: 'id_schedule',
-    status: 'status',
+    seatschedule_status: 'seatschedule_status',
     purchaseDetailId_purchasedetail: 'purchaseDetailId_purchasedetail'
   };
 
@@ -10076,7 +10095,8 @@ export namespace Prisma {
     id_train: 'id_train',
     train_name: 'train_name',
     description: 'description',
-    train_picture: 'train_picture'
+    train_picture: 'train_picture',
+    train_status: 'train_status'
   };
 
   export type TrainScalarFieldEnum = (typeof TrainScalarFieldEnum)[keyof typeof TrainScalarFieldEnum]
@@ -10115,6 +10135,7 @@ export namespace Prisma {
 
 
   export const scheduleOrderByRelevanceFieldEnum: {
+    schedule_name: 'schedule_name',
     departure: 'departure',
     destination: 'destination'
   };
@@ -10232,6 +10253,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'train_status'
+   */
+  export type Enumtrain_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'train_status'>
+    
+
+
+  /**
    * Reference to a field of type 'user_role'
    */
   export type Enumuser_roleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'user_role'>
@@ -10307,12 +10335,12 @@ export namespace Prisma {
     OR?: scheduleWhereInput[]
     NOT?: scheduleWhereInput | scheduleWhereInput[]
     id_schedule?: IntFilter<"schedule"> | number
+    schedule_name?: StringFilter<"schedule"> | string
     departure?: StringFilter<"schedule"> | string
     destination?: StringFilter<"schedule"> | string
     departure_date?: DateTimeFilter<"schedule"> | Date | string
     arrival_date?: DateTimeFilter<"schedule"> | Date | string
-    adult_price?: FloatFilter<"schedule"> | number
-    child_price?: FloatFilter<"schedule"> | number
+    price?: FloatFilter<"schedule"> | number
     quota_total?: IntFilter<"schedule"> | number
     status?: EnumstatusFilter<"schedule"> | $Enums.status
     id_train?: IntFilter<"schedule"> | number
@@ -10323,12 +10351,12 @@ export namespace Prisma {
 
   export type scheduleOrderByWithRelationInput = {
     id_schedule?: SortOrder
+    schedule_name?: SortOrder
     departure?: SortOrder
     destination?: SortOrder
     departure_date?: SortOrder
     arrival_date?: SortOrder
-    adult_price?: SortOrder
-    child_price?: SortOrder
+    price?: SortOrder
     quota_total?: SortOrder
     status?: SortOrder
     id_train?: SortOrder
@@ -10343,12 +10371,12 @@ export namespace Prisma {
     AND?: scheduleWhereInput | scheduleWhereInput[]
     OR?: scheduleWhereInput[]
     NOT?: scheduleWhereInput | scheduleWhereInput[]
+    schedule_name?: StringFilter<"schedule"> | string
     departure?: StringFilter<"schedule"> | string
     destination?: StringFilter<"schedule"> | string
     departure_date?: DateTimeFilter<"schedule"> | Date | string
     arrival_date?: DateTimeFilter<"schedule"> | Date | string
-    adult_price?: FloatFilter<"schedule"> | number
-    child_price?: FloatFilter<"schedule"> | number
+    price?: FloatFilter<"schedule"> | number
     quota_total?: IntFilter<"schedule"> | number
     status?: EnumstatusFilter<"schedule"> | $Enums.status
     id_train?: IntFilter<"schedule"> | number
@@ -10359,12 +10387,12 @@ export namespace Prisma {
 
   export type scheduleOrderByWithAggregationInput = {
     id_schedule?: SortOrder
+    schedule_name?: SortOrder
     departure?: SortOrder
     destination?: SortOrder
     departure_date?: SortOrder
     arrival_date?: SortOrder
-    adult_price?: SortOrder
-    child_price?: SortOrder
+    price?: SortOrder
     quota_total?: SortOrder
     status?: SortOrder
     id_train?: SortOrder
@@ -10380,12 +10408,12 @@ export namespace Prisma {
     OR?: scheduleScalarWhereWithAggregatesInput[]
     NOT?: scheduleScalarWhereWithAggregatesInput | scheduleScalarWhereWithAggregatesInput[]
     id_schedule?: IntWithAggregatesFilter<"schedule"> | number
+    schedule_name?: StringWithAggregatesFilter<"schedule"> | string
     departure?: StringWithAggregatesFilter<"schedule"> | string
     destination?: StringWithAggregatesFilter<"schedule"> | string
     departure_date?: DateTimeWithAggregatesFilter<"schedule"> | Date | string
     arrival_date?: DateTimeWithAggregatesFilter<"schedule"> | Date | string
-    adult_price?: FloatWithAggregatesFilter<"schedule"> | number
-    child_price?: FloatWithAggregatesFilter<"schedule"> | number
+    price?: FloatWithAggregatesFilter<"schedule"> | number
     quota_total?: IntWithAggregatesFilter<"schedule"> | number
     status?: EnumstatusWithAggregatesFilter<"schedule"> | $Enums.status
     id_train?: IntWithAggregatesFilter<"schedule"> | number
@@ -10452,7 +10480,7 @@ export namespace Prisma {
     id_seat_schedule?: IntFilter<"seat_schedule"> | number
     id_seat?: IntFilter<"seat_schedule"> | number
     id_schedule?: IntFilter<"seat_schedule"> | number
-    status?: Enumseatschedule_statusFilter<"seat_schedule"> | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFilter<"seat_schedule"> | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: IntNullableFilter<"seat_schedule"> | number | null
     purchase_detail?: XOR<Purchase_detailNullableScalarRelationFilter, purchase_detailWhereInput> | null
     schedule?: XOR<ScheduleScalarRelationFilter, scheduleWhereInput>
@@ -10463,7 +10491,7 @@ export namespace Prisma {
     id_seat_schedule?: SortOrder
     id_seat?: SortOrder
     id_schedule?: SortOrder
-    status?: SortOrder
+    seatschedule_status?: SortOrder
     purchaseDetailId_purchasedetail?: SortOrderInput | SortOrder
     purchase_detail?: purchase_detailOrderByWithRelationInput
     schedule?: scheduleOrderByWithRelationInput
@@ -10478,7 +10506,7 @@ export namespace Prisma {
     NOT?: seat_scheduleWhereInput | seat_scheduleWhereInput[]
     id_seat?: IntFilter<"seat_schedule"> | number
     id_schedule?: IntFilter<"seat_schedule"> | number
-    status?: Enumseatschedule_statusFilter<"seat_schedule"> | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFilter<"seat_schedule"> | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: IntNullableFilter<"seat_schedule"> | number | null
     purchase_detail?: XOR<Purchase_detailNullableScalarRelationFilter, purchase_detailWhereInput> | null
     schedule?: XOR<ScheduleScalarRelationFilter, scheduleWhereInput>
@@ -10489,7 +10517,7 @@ export namespace Prisma {
     id_seat_schedule?: SortOrder
     id_seat?: SortOrder
     id_schedule?: SortOrder
-    status?: SortOrder
+    seatschedule_status?: SortOrder
     purchaseDetailId_purchasedetail?: SortOrderInput | SortOrder
     _count?: seat_scheduleCountOrderByAggregateInput
     _avg?: seat_scheduleAvgOrderByAggregateInput
@@ -10505,7 +10533,7 @@ export namespace Prisma {
     id_seat_schedule?: IntWithAggregatesFilter<"seat_schedule"> | number
     id_seat?: IntWithAggregatesFilter<"seat_schedule"> | number
     id_schedule?: IntWithAggregatesFilter<"seat_schedule"> | number
-    status?: Enumseatschedule_statusWithAggregatesFilter<"seat_schedule"> | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusWithAggregatesFilter<"seat_schedule"> | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: IntNullableWithAggregatesFilter<"seat_schedule"> | number | null
   }
 
@@ -10670,6 +10698,7 @@ export namespace Prisma {
     train_name?: StringFilter<"train"> | string
     description?: StringFilter<"train"> | string
     train_picture?: StringFilter<"train"> | string
+    train_status?: Enumtrain_statusFilter<"train"> | $Enums.train_status
     carriage?: CarriageListRelationFilter
     schedule?: ScheduleListRelationFilter
   }
@@ -10679,6 +10708,7 @@ export namespace Prisma {
     train_name?: SortOrder
     description?: SortOrder
     train_picture?: SortOrder
+    train_status?: SortOrder
     carriage?: carriageOrderByRelationAggregateInput
     schedule?: scheduleOrderByRelationAggregateInput
     _relevance?: trainOrderByRelevanceInput
@@ -10692,6 +10722,7 @@ export namespace Prisma {
     train_name?: StringFilter<"train"> | string
     description?: StringFilter<"train"> | string
     train_picture?: StringFilter<"train"> | string
+    train_status?: Enumtrain_statusFilter<"train"> | $Enums.train_status
     carriage?: CarriageListRelationFilter
     schedule?: ScheduleListRelationFilter
   }, "id_train">
@@ -10701,6 +10732,7 @@ export namespace Prisma {
     train_name?: SortOrder
     description?: SortOrder
     train_picture?: SortOrder
+    train_status?: SortOrder
     _count?: trainCountOrderByAggregateInput
     _avg?: trainAvgOrderByAggregateInput
     _max?: trainMaxOrderByAggregateInput
@@ -10716,6 +10748,7 @@ export namespace Prisma {
     train_name?: StringWithAggregatesFilter<"train"> | string
     description?: StringWithAggregatesFilter<"train"> | string
     train_picture?: StringWithAggregatesFilter<"train"> | string
+    train_status?: Enumtrain_statusWithAggregatesFilter<"train"> | $Enums.train_status
   }
 
   export type userWhereInput = {
@@ -10863,12 +10896,12 @@ export namespace Prisma {
   }
 
   export type scheduleCreateInput = {
+    schedule_name: string
     departure: string
     destination: string
     departure_date: Date | string
     arrival_date: Date | string
-    adult_price: number
-    child_price: number
+    price: number
     quota_total: number
     status?: $Enums.status
     train: trainCreateNestedOneWithoutScheduleInput
@@ -10878,12 +10911,12 @@ export namespace Prisma {
 
   export type scheduleUncheckedCreateInput = {
     id_schedule?: number
+    schedule_name: string
     departure: string
     destination: string
     departure_date: Date | string
     arrival_date: Date | string
-    adult_price: number
-    child_price: number
+    price: number
     quota_total: number
     status?: $Enums.status
     id_train: number
@@ -10892,12 +10925,12 @@ export namespace Prisma {
   }
 
   export type scheduleUpdateInput = {
+    schedule_name?: StringFieldUpdateOperationsInput | string
     departure?: StringFieldUpdateOperationsInput | string
     destination?: StringFieldUpdateOperationsInput | string
     departure_date?: DateTimeFieldUpdateOperationsInput | Date | string
     arrival_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    adult_price?: FloatFieldUpdateOperationsInput | number
-    child_price?: FloatFieldUpdateOperationsInput | number
+    price?: FloatFieldUpdateOperationsInput | number
     quota_total?: IntFieldUpdateOperationsInput | number
     status?: EnumstatusFieldUpdateOperationsInput | $Enums.status
     train?: trainUpdateOneRequiredWithoutScheduleNestedInput
@@ -10907,12 +10940,12 @@ export namespace Prisma {
 
   export type scheduleUncheckedUpdateInput = {
     id_schedule?: IntFieldUpdateOperationsInput | number
+    schedule_name?: StringFieldUpdateOperationsInput | string
     departure?: StringFieldUpdateOperationsInput | string
     destination?: StringFieldUpdateOperationsInput | string
     departure_date?: DateTimeFieldUpdateOperationsInput | Date | string
     arrival_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    adult_price?: FloatFieldUpdateOperationsInput | number
-    child_price?: FloatFieldUpdateOperationsInput | number
+    price?: FloatFieldUpdateOperationsInput | number
     quota_total?: IntFieldUpdateOperationsInput | number
     status?: EnumstatusFieldUpdateOperationsInput | $Enums.status
     id_train?: IntFieldUpdateOperationsInput | number
@@ -10922,36 +10955,36 @@ export namespace Prisma {
 
   export type scheduleCreateManyInput = {
     id_schedule?: number
+    schedule_name: string
     departure: string
     destination: string
     departure_date: Date | string
     arrival_date: Date | string
-    adult_price: number
-    child_price: number
+    price: number
     quota_total: number
     status?: $Enums.status
     id_train: number
   }
 
   export type scheduleUpdateManyMutationInput = {
+    schedule_name?: StringFieldUpdateOperationsInput | string
     departure?: StringFieldUpdateOperationsInput | string
     destination?: StringFieldUpdateOperationsInput | string
     departure_date?: DateTimeFieldUpdateOperationsInput | Date | string
     arrival_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    adult_price?: FloatFieldUpdateOperationsInput | number
-    child_price?: FloatFieldUpdateOperationsInput | number
+    price?: FloatFieldUpdateOperationsInput | number
     quota_total?: IntFieldUpdateOperationsInput | number
     status?: EnumstatusFieldUpdateOperationsInput | $Enums.status
   }
 
   export type scheduleUncheckedUpdateManyInput = {
     id_schedule?: IntFieldUpdateOperationsInput | number
+    schedule_name?: StringFieldUpdateOperationsInput | string
     departure?: StringFieldUpdateOperationsInput | string
     destination?: StringFieldUpdateOperationsInput | string
     departure_date?: DateTimeFieldUpdateOperationsInput | Date | string
     arrival_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    adult_price?: FloatFieldUpdateOperationsInput | number
-    child_price?: FloatFieldUpdateOperationsInput | number
+    price?: FloatFieldUpdateOperationsInput | number
     quota_total?: IntFieldUpdateOperationsInput | number
     status?: EnumstatusFieldUpdateOperationsInput | $Enums.status
     id_train?: IntFieldUpdateOperationsInput | number
@@ -11004,7 +11037,7 @@ export namespace Prisma {
   }
 
   export type seat_scheduleCreateInput = {
-    status?: $Enums.seatschedule_status
+    seatschedule_status?: $Enums.seatschedule_status
     purchase_detail?: purchase_detailCreateNestedOneWithoutSeat_scheduleInput
     schedule: scheduleCreateNestedOneWithoutSeat_scheduleInput
     seat: seatCreateNestedOneWithoutSeat_scheduleInput
@@ -11014,12 +11047,12 @@ export namespace Prisma {
     id_seat_schedule?: number
     id_seat: number
     id_schedule: number
-    status?: $Enums.seatschedule_status
+    seatschedule_status?: $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: number | null
   }
 
   export type seat_scheduleUpdateInput = {
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchase_detail?: purchase_detailUpdateOneWithoutSeat_scheduleNestedInput
     schedule?: scheduleUpdateOneRequiredWithoutSeat_scheduleNestedInput
     seat?: seatUpdateOneRequiredWithoutSeat_scheduleNestedInput
@@ -11029,7 +11062,7 @@ export namespace Prisma {
     id_seat_schedule?: IntFieldUpdateOperationsInput | number
     id_seat?: IntFieldUpdateOperationsInput | number
     id_schedule?: IntFieldUpdateOperationsInput | number
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
@@ -11037,19 +11070,19 @@ export namespace Prisma {
     id_seat_schedule?: number
     id_seat: number
     id_schedule: number
-    status?: $Enums.seatschedule_status
+    seatschedule_status?: $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: number | null
   }
 
   export type seat_scheduleUpdateManyMutationInput = {
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
   }
 
   export type seat_scheduleUncheckedUpdateManyInput = {
     id_seat_schedule?: IntFieldUpdateOperationsInput | number
     id_seat?: IntFieldUpdateOperationsInput | number
     id_schedule?: IntFieldUpdateOperationsInput | number
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
@@ -11202,6 +11235,7 @@ export namespace Prisma {
     train_name: string
     description: string
     train_picture?: string
+    train_status?: $Enums.train_status
     carriage?: carriageCreateNestedManyWithoutTrainInput
     schedule?: scheduleCreateNestedManyWithoutTrainInput
   }
@@ -11211,6 +11245,7 @@ export namespace Prisma {
     train_name: string
     description: string
     train_picture?: string
+    train_status?: $Enums.train_status
     carriage?: carriageUncheckedCreateNestedManyWithoutTrainInput
     schedule?: scheduleUncheckedCreateNestedManyWithoutTrainInput
   }
@@ -11219,6 +11254,7 @@ export namespace Prisma {
     train_name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     train_picture?: StringFieldUpdateOperationsInput | string
+    train_status?: Enumtrain_statusFieldUpdateOperationsInput | $Enums.train_status
     carriage?: carriageUpdateManyWithoutTrainNestedInput
     schedule?: scheduleUpdateManyWithoutTrainNestedInput
   }
@@ -11228,6 +11264,7 @@ export namespace Prisma {
     train_name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     train_picture?: StringFieldUpdateOperationsInput | string
+    train_status?: Enumtrain_statusFieldUpdateOperationsInput | $Enums.train_status
     carriage?: carriageUncheckedUpdateManyWithoutTrainNestedInput
     schedule?: scheduleUncheckedUpdateManyWithoutTrainNestedInput
   }
@@ -11237,12 +11274,14 @@ export namespace Prisma {
     train_name: string
     description: string
     train_picture?: string
+    train_status?: $Enums.train_status
   }
 
   export type trainUpdateManyMutationInput = {
     train_name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     train_picture?: StringFieldUpdateOperationsInput | string
+    train_status?: Enumtrain_statusFieldUpdateOperationsInput | $Enums.train_status
   }
 
   export type trainUncheckedUpdateManyInput = {
@@ -11250,6 +11289,7 @@ export namespace Prisma {
     train_name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     train_picture?: StringFieldUpdateOperationsInput | string
+    train_status?: Enumtrain_statusFieldUpdateOperationsInput | $Enums.train_status
   }
 
   export type userCreateInput = {
@@ -11542,12 +11582,12 @@ export namespace Prisma {
 
   export type scheduleCountOrderByAggregateInput = {
     id_schedule?: SortOrder
+    schedule_name?: SortOrder
     departure?: SortOrder
     destination?: SortOrder
     departure_date?: SortOrder
     arrival_date?: SortOrder
-    adult_price?: SortOrder
-    child_price?: SortOrder
+    price?: SortOrder
     quota_total?: SortOrder
     status?: SortOrder
     id_train?: SortOrder
@@ -11555,20 +11595,19 @@ export namespace Prisma {
 
   export type scheduleAvgOrderByAggregateInput = {
     id_schedule?: SortOrder
-    adult_price?: SortOrder
-    child_price?: SortOrder
+    price?: SortOrder
     quota_total?: SortOrder
     id_train?: SortOrder
   }
 
   export type scheduleMaxOrderByAggregateInput = {
     id_schedule?: SortOrder
+    schedule_name?: SortOrder
     departure?: SortOrder
     destination?: SortOrder
     departure_date?: SortOrder
     arrival_date?: SortOrder
-    adult_price?: SortOrder
-    child_price?: SortOrder
+    price?: SortOrder
     quota_total?: SortOrder
     status?: SortOrder
     id_train?: SortOrder
@@ -11576,12 +11615,12 @@ export namespace Prisma {
 
   export type scheduleMinOrderByAggregateInput = {
     id_schedule?: SortOrder
+    schedule_name?: SortOrder
     departure?: SortOrder
     destination?: SortOrder
     departure_date?: SortOrder
     arrival_date?: SortOrder
-    adult_price?: SortOrder
-    child_price?: SortOrder
+    price?: SortOrder
     quota_total?: SortOrder
     status?: SortOrder
     id_train?: SortOrder
@@ -11589,8 +11628,7 @@ export namespace Prisma {
 
   export type scheduleSumOrderByAggregateInput = {
     id_schedule?: SortOrder
-    adult_price?: SortOrder
-    child_price?: SortOrder
+    price?: SortOrder
     quota_total?: SortOrder
     id_train?: SortOrder
   }
@@ -11731,7 +11769,7 @@ export namespace Prisma {
     id_seat_schedule?: SortOrder
     id_seat?: SortOrder
     id_schedule?: SortOrder
-    status?: SortOrder
+    seatschedule_status?: SortOrder
     purchaseDetailId_purchasedetail?: SortOrder
   }
 
@@ -11746,7 +11784,7 @@ export namespace Prisma {
     id_seat_schedule?: SortOrder
     id_seat?: SortOrder
     id_schedule?: SortOrder
-    status?: SortOrder
+    seatschedule_status?: SortOrder
     purchaseDetailId_purchasedetail?: SortOrder
   }
 
@@ -11754,7 +11792,7 @@ export namespace Prisma {
     id_seat_schedule?: SortOrder
     id_seat?: SortOrder
     id_schedule?: SortOrder
-    status?: SortOrder
+    seatschedule_status?: SortOrder
     purchaseDetailId_purchasedetail?: SortOrder
   }
 
@@ -11904,6 +11942,13 @@ export namespace Prisma {
     id_ticket_purchase?: SortOrder
   }
 
+  export type Enumtrain_statusFilter<$PrismaModel = never> = {
+    equals?: $Enums.train_status | Enumtrain_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.train_status[]
+    notIn?: $Enums.train_status[]
+    not?: NestedEnumtrain_statusFilter<$PrismaModel> | $Enums.train_status
+  }
+
   export type CarriageListRelationFilter = {
     every?: carriageWhereInput
     some?: carriageWhereInput
@@ -11935,6 +11980,7 @@ export namespace Prisma {
     train_name?: SortOrder
     description?: SortOrder
     train_picture?: SortOrder
+    train_status?: SortOrder
   }
 
   export type trainAvgOrderByAggregateInput = {
@@ -11946,6 +11992,7 @@ export namespace Prisma {
     train_name?: SortOrder
     description?: SortOrder
     train_picture?: SortOrder
+    train_status?: SortOrder
   }
 
   export type trainMinOrderByAggregateInput = {
@@ -11953,10 +12000,21 @@ export namespace Prisma {
     train_name?: SortOrder
     description?: SortOrder
     train_picture?: SortOrder
+    train_status?: SortOrder
   }
 
   export type trainSumOrderByAggregateInput = {
     id_train?: SortOrder
+  }
+
+  export type Enumtrain_statusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.train_status | Enumtrain_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.train_status[]
+    notIn?: $Enums.train_status[]
+    not?: NestedEnumtrain_statusWithAggregatesFilter<$PrismaModel> | $Enums.train_status
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumtrain_statusFilter<$PrismaModel>
+    _max?: NestedEnumtrain_statusFilter<$PrismaModel>
   }
 
   export type Enumuser_roleFilter<$PrismaModel = never> = {
@@ -12542,6 +12600,10 @@ export namespace Prisma {
     connect?: scheduleWhereUniqueInput | scheduleWhereUniqueInput[]
   }
 
+  export type Enumtrain_statusFieldUpdateOperationsInput = {
+    set?: $Enums.train_status
+  }
+
   export type carriageUpdateManyWithoutTrainNestedInput = {
     create?: XOR<carriageCreateWithoutTrainInput, carriageUncheckedCreateWithoutTrainInput> | carriageCreateWithoutTrainInput[] | carriageUncheckedCreateWithoutTrainInput[]
     connectOrCreate?: carriageCreateOrConnectWithoutTrainInput | carriageCreateOrConnectWithoutTrainInput[]
@@ -12845,6 +12907,23 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedEnumtrain_statusFilter<$PrismaModel = never> = {
+    equals?: $Enums.train_status | Enumtrain_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.train_status[]
+    notIn?: $Enums.train_status[]
+    not?: NestedEnumtrain_statusFilter<$PrismaModel> | $Enums.train_status
+  }
+
+  export type NestedEnumtrain_statusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.train_status | Enumtrain_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.train_status[]
+    notIn?: $Enums.train_status[]
+    not?: NestedEnumtrain_statusWithAggregatesFilter<$PrismaModel> | $Enums.train_status
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumtrain_statusFilter<$PrismaModel>
+    _max?: NestedEnumtrain_statusFilter<$PrismaModel>
+  }
+
   export type NestedEnumuser_roleFilter<$PrismaModel = never> = {
     equals?: $Enums.user_role | Enumuser_roleFieldRefInput<$PrismaModel>
     in?: $Enums.user_role[]
@@ -12866,6 +12945,7 @@ export namespace Prisma {
     train_name: string
     description: string
     train_picture?: string
+    train_status?: $Enums.train_status
     schedule?: scheduleCreateNestedManyWithoutTrainInput
   }
 
@@ -12874,6 +12954,7 @@ export namespace Prisma {
     train_name: string
     description: string
     train_picture?: string
+    train_status?: $Enums.train_status
     schedule?: scheduleUncheckedCreateNestedManyWithoutTrainInput
   }
 
@@ -12920,6 +13001,7 @@ export namespace Prisma {
     train_name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     train_picture?: StringFieldUpdateOperationsInput | string
+    train_status?: Enumtrain_statusFieldUpdateOperationsInput | $Enums.train_status
     schedule?: scheduleUpdateManyWithoutTrainNestedInput
   }
 
@@ -12928,6 +13010,7 @@ export namespace Prisma {
     train_name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     train_picture?: StringFieldUpdateOperationsInput | string
+    train_status?: Enumtrain_statusFieldUpdateOperationsInput | $Enums.train_status
     schedule?: scheduleUncheckedUpdateManyWithoutTrainNestedInput
   }
 
@@ -12960,6 +13043,7 @@ export namespace Prisma {
     train_name: string
     description: string
     train_picture?: string
+    train_status?: $Enums.train_status
     carriage?: carriageCreateNestedManyWithoutTrainInput
   }
 
@@ -12968,6 +13052,7 @@ export namespace Prisma {
     train_name: string
     description: string
     train_picture?: string
+    train_status?: $Enums.train_status
     carriage?: carriageUncheckedCreateNestedManyWithoutTrainInput
   }
 
@@ -12977,7 +13062,7 @@ export namespace Prisma {
   }
 
   export type seat_scheduleCreateWithoutScheduleInput = {
-    status?: $Enums.seatschedule_status
+    seatschedule_status?: $Enums.seatschedule_status
     purchase_detail?: purchase_detailCreateNestedOneWithoutSeat_scheduleInput
     seat: seatCreateNestedOneWithoutSeat_scheduleInput
   }
@@ -12985,7 +13070,7 @@ export namespace Prisma {
   export type seat_scheduleUncheckedCreateWithoutScheduleInput = {
     id_seat_schedule?: number
     id_seat: number
-    status?: $Enums.seatschedule_status
+    seatschedule_status?: $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: number | null
   }
 
@@ -13045,6 +13130,7 @@ export namespace Prisma {
     train_name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     train_picture?: StringFieldUpdateOperationsInput | string
+    train_status?: Enumtrain_statusFieldUpdateOperationsInput | $Enums.train_status
     carriage?: carriageUpdateManyWithoutTrainNestedInput
   }
 
@@ -13053,6 +13139,7 @@ export namespace Prisma {
     train_name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     train_picture?: StringFieldUpdateOperationsInput | string
+    train_status?: Enumtrain_statusFieldUpdateOperationsInput | $Enums.train_status
     carriage?: carriageUncheckedUpdateManyWithoutTrainNestedInput
   }
 
@@ -13079,7 +13166,7 @@ export namespace Prisma {
     id_seat_schedule?: IntFilter<"seat_schedule"> | number
     id_seat?: IntFilter<"seat_schedule"> | number
     id_schedule?: IntFilter<"seat_schedule"> | number
-    status?: Enumseatschedule_statusFilter<"seat_schedule"> | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFilter<"seat_schedule"> | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: IntNullableFilter<"seat_schedule"> | number | null
   }
 
@@ -13163,7 +13250,7 @@ export namespace Prisma {
   }
 
   export type seat_scheduleCreateWithoutSeatInput = {
-    status?: $Enums.seatschedule_status
+    seatschedule_status?: $Enums.seatschedule_status
     purchase_detail?: purchase_detailCreateNestedOneWithoutSeat_scheduleInput
     schedule: scheduleCreateNestedOneWithoutSeat_scheduleInput
   }
@@ -13171,7 +13258,7 @@ export namespace Prisma {
   export type seat_scheduleUncheckedCreateWithoutSeatInput = {
     id_seat_schedule?: number
     id_schedule: number
-    status?: $Enums.seatschedule_status
+    seatschedule_status?: $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: number | null
   }
 
@@ -13281,12 +13368,12 @@ export namespace Prisma {
   }
 
   export type scheduleCreateWithoutSeat_scheduleInput = {
+    schedule_name: string
     departure: string
     destination: string
     departure_date: Date | string
     arrival_date: Date | string
-    adult_price: number
-    child_price: number
+    price: number
     quota_total: number
     status?: $Enums.status
     train: trainCreateNestedOneWithoutScheduleInput
@@ -13295,12 +13382,12 @@ export namespace Prisma {
 
   export type scheduleUncheckedCreateWithoutSeat_scheduleInput = {
     id_schedule?: number
+    schedule_name: string
     departure: string
     destination: string
     departure_date: Date | string
     arrival_date: Date | string
-    adult_price: number
-    child_price: number
+    price: number
     quota_total: number
     status?: $Enums.status
     id_train: number
@@ -13372,12 +13459,12 @@ export namespace Prisma {
   }
 
   export type scheduleUpdateWithoutSeat_scheduleInput = {
+    schedule_name?: StringFieldUpdateOperationsInput | string
     departure?: StringFieldUpdateOperationsInput | string
     destination?: StringFieldUpdateOperationsInput | string
     departure_date?: DateTimeFieldUpdateOperationsInput | Date | string
     arrival_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    adult_price?: FloatFieldUpdateOperationsInput | number
-    child_price?: FloatFieldUpdateOperationsInput | number
+    price?: FloatFieldUpdateOperationsInput | number
     quota_total?: IntFieldUpdateOperationsInput | number
     status?: EnumstatusFieldUpdateOperationsInput | $Enums.status
     train?: trainUpdateOneRequiredWithoutScheduleNestedInput
@@ -13386,12 +13473,12 @@ export namespace Prisma {
 
   export type scheduleUncheckedUpdateWithoutSeat_scheduleInput = {
     id_schedule?: IntFieldUpdateOperationsInput | number
+    schedule_name?: StringFieldUpdateOperationsInput | string
     departure?: StringFieldUpdateOperationsInput | string
     destination?: StringFieldUpdateOperationsInput | string
     departure_date?: DateTimeFieldUpdateOperationsInput | Date | string
     arrival_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    adult_price?: FloatFieldUpdateOperationsInput | number
-    child_price?: FloatFieldUpdateOperationsInput | number
+    price?: FloatFieldUpdateOperationsInput | number
     quota_total?: IntFieldUpdateOperationsInput | number
     status?: EnumstatusFieldUpdateOperationsInput | $Enums.status
     id_train?: IntFieldUpdateOperationsInput | number
@@ -13452,12 +13539,12 @@ export namespace Prisma {
   }
 
   export type scheduleCreateWithoutTicket_purchaseInput = {
+    schedule_name: string
     departure: string
     destination: string
     departure_date: Date | string
     arrival_date: Date | string
-    adult_price: number
-    child_price: number
+    price: number
     quota_total: number
     status?: $Enums.status
     train: trainCreateNestedOneWithoutScheduleInput
@@ -13466,12 +13553,12 @@ export namespace Prisma {
 
   export type scheduleUncheckedCreateWithoutTicket_purchaseInput = {
     id_schedule?: number
+    schedule_name: string
     departure: string
     destination: string
     departure_date: Date | string
     arrival_date: Date | string
-    adult_price: number
-    child_price: number
+    price: number
     quota_total: number
     status?: $Enums.status
     id_train: number
@@ -13543,12 +13630,12 @@ export namespace Prisma {
   }
 
   export type scheduleUpdateWithoutTicket_purchaseInput = {
+    schedule_name?: StringFieldUpdateOperationsInput | string
     departure?: StringFieldUpdateOperationsInput | string
     destination?: StringFieldUpdateOperationsInput | string
     departure_date?: DateTimeFieldUpdateOperationsInput | Date | string
     arrival_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    adult_price?: FloatFieldUpdateOperationsInput | number
-    child_price?: FloatFieldUpdateOperationsInput | number
+    price?: FloatFieldUpdateOperationsInput | number
     quota_total?: IntFieldUpdateOperationsInput | number
     status?: EnumstatusFieldUpdateOperationsInput | $Enums.status
     train?: trainUpdateOneRequiredWithoutScheduleNestedInput
@@ -13557,12 +13644,12 @@ export namespace Prisma {
 
   export type scheduleUncheckedUpdateWithoutTicket_purchaseInput = {
     id_schedule?: IntFieldUpdateOperationsInput | number
+    schedule_name?: StringFieldUpdateOperationsInput | string
     departure?: StringFieldUpdateOperationsInput | string
     destination?: StringFieldUpdateOperationsInput | string
     departure_date?: DateTimeFieldUpdateOperationsInput | Date | string
     arrival_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    adult_price?: FloatFieldUpdateOperationsInput | number
-    child_price?: FloatFieldUpdateOperationsInput | number
+    price?: FloatFieldUpdateOperationsInput | number
     quota_total?: IntFieldUpdateOperationsInput | number
     status?: EnumstatusFieldUpdateOperationsInput | $Enums.status
     id_train?: IntFieldUpdateOperationsInput | number
@@ -13652,7 +13739,7 @@ export namespace Prisma {
   }
 
   export type seat_scheduleCreateWithoutPurchase_detailInput = {
-    status?: $Enums.seatschedule_status
+    seatschedule_status?: $Enums.seatschedule_status
     schedule: scheduleCreateNestedOneWithoutSeat_scheduleInput
     seat: seatCreateNestedOneWithoutSeat_scheduleInput
   }
@@ -13661,7 +13748,7 @@ export namespace Prisma {
     id_seat_schedule?: number
     id_seat: number
     id_schedule: number
-    status?: $Enums.seatschedule_status
+    seatschedule_status?: $Enums.seatschedule_status
   }
 
   export type seat_scheduleCreateOrConnectWithoutPurchase_detailInput = {
@@ -13772,12 +13859,12 @@ export namespace Prisma {
   }
 
   export type scheduleCreateWithoutTrainInput = {
+    schedule_name: string
     departure: string
     destination: string
     departure_date: Date | string
     arrival_date: Date | string
-    adult_price: number
-    child_price: number
+    price: number
     quota_total: number
     status?: $Enums.status
     seat_schedule?: seat_scheduleCreateNestedManyWithoutScheduleInput
@@ -13786,12 +13873,12 @@ export namespace Prisma {
 
   export type scheduleUncheckedCreateWithoutTrainInput = {
     id_schedule?: number
+    schedule_name: string
     departure: string
     destination: string
     departure_date: Date | string
     arrival_date: Date | string
-    adult_price: number
-    child_price: number
+    price: number
     quota_total: number
     status?: $Enums.status
     seat_schedule?: seat_scheduleUncheckedCreateNestedManyWithoutScheduleInput
@@ -13856,12 +13943,12 @@ export namespace Prisma {
     OR?: scheduleScalarWhereInput[]
     NOT?: scheduleScalarWhereInput | scheduleScalarWhereInput[]
     id_schedule?: IntFilter<"schedule"> | number
+    schedule_name?: StringFilter<"schedule"> | string
     departure?: StringFilter<"schedule"> | string
     destination?: StringFilter<"schedule"> | string
     departure_date?: DateTimeFilter<"schedule"> | Date | string
     arrival_date?: DateTimeFilter<"schedule"> | Date | string
-    adult_price?: FloatFilter<"schedule"> | number
-    child_price?: FloatFilter<"schedule"> | number
+    price?: FloatFilter<"schedule"> | number
     quota_total?: IntFilter<"schedule"> | number
     status?: EnumstatusFilter<"schedule"> | $Enums.status
     id_train?: IntFilter<"schedule"> | number
@@ -13940,7 +14027,7 @@ export namespace Prisma {
   export type seat_scheduleCreateManyScheduleInput = {
     id_seat_schedule?: number
     id_seat: number
-    status?: $Enums.seatschedule_status
+    seatschedule_status?: $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: number | null
   }
 
@@ -13955,7 +14042,7 @@ export namespace Prisma {
   }
 
   export type seat_scheduleUpdateWithoutScheduleInput = {
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchase_detail?: purchase_detailUpdateOneWithoutSeat_scheduleNestedInput
     seat?: seatUpdateOneRequiredWithoutSeat_scheduleNestedInput
   }
@@ -13963,14 +14050,14 @@ export namespace Prisma {
   export type seat_scheduleUncheckedUpdateWithoutScheduleInput = {
     id_seat_schedule?: IntFieldUpdateOperationsInput | number
     id_seat?: IntFieldUpdateOperationsInput | number
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type seat_scheduleUncheckedUpdateManyWithoutScheduleInput = {
     id_seat_schedule?: IntFieldUpdateOperationsInput | number
     id_seat?: IntFieldUpdateOperationsInput | number
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
@@ -14017,7 +14104,7 @@ export namespace Prisma {
   export type seat_scheduleCreateManySeatInput = {
     id_seat_schedule?: number
     id_schedule: number
-    status?: $Enums.seatschedule_status
+    seatschedule_status?: $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: number | null
   }
 
@@ -14050,7 +14137,7 @@ export namespace Prisma {
   }
 
   export type seat_scheduleUpdateWithoutSeatInput = {
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchase_detail?: purchase_detailUpdateOneWithoutSeat_scheduleNestedInput
     schedule?: scheduleUpdateOneRequiredWithoutSeat_scheduleNestedInput
   }
@@ -14058,14 +14145,14 @@ export namespace Prisma {
   export type seat_scheduleUncheckedUpdateWithoutSeatInput = {
     id_seat_schedule?: IntFieldUpdateOperationsInput | number
     id_schedule?: IntFieldUpdateOperationsInput | number
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type seat_scheduleUncheckedUpdateManyWithoutSeatInput = {
     id_seat_schedule?: IntFieldUpdateOperationsInput | number
     id_schedule?: IntFieldUpdateOperationsInput | number
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
@@ -14110,11 +14197,11 @@ export namespace Prisma {
     id_seat_schedule?: number
     id_seat: number
     id_schedule: number
-    status?: $Enums.seatschedule_status
+    seatschedule_status?: $Enums.seatschedule_status
   }
 
   export type seat_scheduleUpdateWithoutPurchase_detailInput = {
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     schedule?: scheduleUpdateOneRequiredWithoutSeat_scheduleNestedInput
     seat?: seatUpdateOneRequiredWithoutSeat_scheduleNestedInput
   }
@@ -14123,14 +14210,14 @@ export namespace Prisma {
     id_seat_schedule?: IntFieldUpdateOperationsInput | number
     id_seat?: IntFieldUpdateOperationsInput | number
     id_schedule?: IntFieldUpdateOperationsInput | number
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
   }
 
   export type seat_scheduleUncheckedUpdateManyWithoutPurchase_detailInput = {
     id_seat_schedule?: IntFieldUpdateOperationsInput | number
     id_seat?: IntFieldUpdateOperationsInput | number
     id_schedule?: IntFieldUpdateOperationsInput | number
-    status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
   }
 
   export type carriageCreateManyTrainInput = {
@@ -14142,12 +14229,12 @@ export namespace Prisma {
 
   export type scheduleCreateManyTrainInput = {
     id_schedule?: number
+    schedule_name: string
     departure: string
     destination: string
     departure_date: Date | string
     arrival_date: Date | string
-    adult_price: number
-    child_price: number
+    price: number
     quota_total: number
     status?: $Enums.status
   }
@@ -14175,12 +14262,12 @@ export namespace Prisma {
   }
 
   export type scheduleUpdateWithoutTrainInput = {
+    schedule_name?: StringFieldUpdateOperationsInput | string
     departure?: StringFieldUpdateOperationsInput | string
     destination?: StringFieldUpdateOperationsInput | string
     departure_date?: DateTimeFieldUpdateOperationsInput | Date | string
     arrival_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    adult_price?: FloatFieldUpdateOperationsInput | number
-    child_price?: FloatFieldUpdateOperationsInput | number
+    price?: FloatFieldUpdateOperationsInput | number
     quota_total?: IntFieldUpdateOperationsInput | number
     status?: EnumstatusFieldUpdateOperationsInput | $Enums.status
     seat_schedule?: seat_scheduleUpdateManyWithoutScheduleNestedInput
@@ -14189,12 +14276,12 @@ export namespace Prisma {
 
   export type scheduleUncheckedUpdateWithoutTrainInput = {
     id_schedule?: IntFieldUpdateOperationsInput | number
+    schedule_name?: StringFieldUpdateOperationsInput | string
     departure?: StringFieldUpdateOperationsInput | string
     destination?: StringFieldUpdateOperationsInput | string
     departure_date?: DateTimeFieldUpdateOperationsInput | Date | string
     arrival_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    adult_price?: FloatFieldUpdateOperationsInput | number
-    child_price?: FloatFieldUpdateOperationsInput | number
+    price?: FloatFieldUpdateOperationsInput | number
     quota_total?: IntFieldUpdateOperationsInput | number
     status?: EnumstatusFieldUpdateOperationsInput | $Enums.status
     seat_schedule?: seat_scheduleUncheckedUpdateManyWithoutScheduleNestedInput
@@ -14203,12 +14290,12 @@ export namespace Prisma {
 
   export type scheduleUncheckedUpdateManyWithoutTrainInput = {
     id_schedule?: IntFieldUpdateOperationsInput | number
+    schedule_name?: StringFieldUpdateOperationsInput | string
     departure?: StringFieldUpdateOperationsInput | string
     destination?: StringFieldUpdateOperationsInput | string
     departure_date?: DateTimeFieldUpdateOperationsInput | Date | string
     arrival_date?: DateTimeFieldUpdateOperationsInput | Date | string
-    adult_price?: FloatFieldUpdateOperationsInput | number
-    child_price?: FloatFieldUpdateOperationsInput | number
+    price?: FloatFieldUpdateOperationsInput | number
     quota_total?: IntFieldUpdateOperationsInput | number
     status?: EnumstatusFieldUpdateOperationsInput | $Enums.status
   }

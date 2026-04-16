@@ -5,12 +5,18 @@ import {
     createSchedule,
     updateSchedule,
     deleteSchedule,
+    getServerTime,
+    getCustomerSchedules,
+    getSeatMappingBySchedule,
 } from "../controllers/scheduleController.js"
+import { authMiddleware } from "../middleware/authMiddleware.js"
+import { roleGuard } from "../middleware/roleGuard.js"
 
 import multer from "multer"
-import path from "path"
 
-const app = express()
+const router = express.Router()
+
+
 
 const storage = multer.diskStorage({
     destination: (_req, _file, cb) => {
@@ -23,9 +29,21 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-app.get("/", getAllSchedule)
-app.get("/:id", getScheduleById)
-app.post("/", upload.none(), createSchedule)
-app.put("/:id", upload.none(), updateSchedule)
-app.delete("/:id", deleteSchedule)
-export default app
+// Public route (no auth required)
+router.get("/server-time", getServerTime)
+
+// Protected routes
+router.get("/customer", authMiddleware, roleGuard('CUSTOMER', 'ADMIN'), getCustomerSchedules)
+
+router.get("/", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getAllSchedule)
+
+// CHANGED: Using /seatmapping/:id pattern to avoid Express 5.x routing issues
+router.get("/seatmapping/:id", authMiddleware, roleGuard('CUSTOMER', 'ADMIN'), getSeatMappingBySchedule)
+
+router.get("/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getScheduleById)
+
+router.post("/", authMiddleware, roleGuard('ADMIN'), upload.none(), createSchedule)
+router.put("/:id", authMiddleware, roleGuard('ADMIN'), upload.none(), updateSchedule)
+router.delete("/:id", authMiddleware, roleGuard('ADMIN'), deleteSchedule)
+
+export default router

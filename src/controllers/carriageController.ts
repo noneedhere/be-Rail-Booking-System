@@ -1,319 +1,403 @@
-import type { Request, Response } from "express"
-import { PrismaClient } from "../../generated/prisma/index.js"
-import { PrismaMariaDb } from "@prisma/adapter-mariadb"
-import { carriage_category } from "../../generated/prisma/index.js"
+import type { Request, Response } from "express";
+import { PrismaClient } from "../../generated/prisma/index.js";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 const adapter = new PrismaMariaDb({
     host: "localhost",
     port: 3306,
     database: "ukk",
-})
+});
 
-const prisma: any = new PrismaClient({ adapter })
+const prisma: any = new PrismaClient({ adapter });
 
+/**
+ * Get all carriages with train info (including train_status for lock logic)
+ */
 export const getAllCarriage = async (request: Request, response: Response) => {
     try {
-        const { search } = request.query
+        const { search } = request.query;
 
-        const getAllCarriage = await prisma.carriage.findMany({
+        const carriages = await prisma.carriage.findMany({
             where: {
                 carriage_name: {
                     contains: search?.toString() || "",
                 },
             },
-            select: {
-                id_carriage: true,
-                carriage_name: true,
-                quota: true,
-                carriage_category: true,
+            include: {
                 train: {
                     select: {
                         id_train: true,
                         train_name: true,
-                    },
+                        train_status: true
+                    }
                 },
+                seat: {
+                    orderBy: {
+                        seat_num: 'asc'
+                    }
+                }
             },
-        })
+            orderBy: {
+                carriage_name: 'asc'
+            }
+        });
 
         return response.status(200).json({
             status: true,
-            data: getAllCarriage,
-            message: "Carriage has retrieved",
-        })
+            data: carriages,
+            message: "Carriages retrieved successfully",
+        });
     } catch (error) {
         return response.status(400).json({
             status: false,
             message: `There is an error. ${error}`,
-        })
+        });
     }
-}
+};
 
+/**
+ * Get carriage by ID with train info
+ */
 export const getCarriageById = async (request: Request, response: Response) => {
     try {
-        const { id } = request.params
+        const { id } = request.params;
 
         const carriage = await prisma.carriage.findUnique({
             where: { id_carriage: Number(id) },
-            select: {
-                id_carriage: true,
-                carriage_name: true,
-                quota: true,
-                carriage_category: true,
+            include: {
                 train: {
                     select: {
                         id_train: true,
                         train_name: true,
-                    },
+                        train_status: true
+                    }
                 },
-            },
-        })
+                seat: {
+                    orderBy: {
+                        seat_num: 'asc'
+                    }
+                }
+            }
+        });
 
         if (!carriage) {
             return response.status(404).json({
                 status: false,
                 message: "Carriage not found",
-            })
+            });
         }
 
         return response.status(200).json({
             status: true,
             data: carriage,
             message: "Carriage found",
-        })
+        });
     } catch (error) {
         return response.status(400).json({
             status: false,
             message: `There is an error. ${error}`,
-        })
+        });
     }
-}
+};
 
+/**
+ * Create a new carriage with auto-generated seats based on quota
+ */
 export const createCarriage = async (request: Request, response: Response) => {
+
     try {
-        const { carriage_name, id_train, carriage_category: category } = request.body
+        const { carriage_name, carriage_category, id_train } = request.body;
 
-        if (!carriage_name || !id_train || !category) {
+        // Validation
+        if (!carriage_name || !carriage_category || !id_train) {
             return response.status(400).json({
                 status: false,
-                message: "carriage name, id_train, and carriage_category are required",
-            })
+                message: "carriage_name, carriage_category, and id_train are required",
+            });
         }
 
-        if (!Object.values(carriage_category).includes(category)) {
+        // Validate category and derive quota
+        const categoryQuotaMap: Record<string, number> = {
+            'ECONOMY': 40,
+            'BUSINESS': 10,
+            'EXECUTIVE': 20
+        };
+
+        if (!categoryQuotaMap[carriage_category]) {
             return response.status(400).json({
                 status: false,
-                message: "Invalid carriage category value",
-            })
+                message: "carriage_category must be ECONOMY, EXECUTIVE, or BUSINESS",
+            });
         }
 
+        const quota = categoryQuotaMap[carriage_category];
+
+        // Check if train exists
         const train = await prisma.train.findUnique({
-            where: { id_train: Number(id_train) },
-        })
+            where: { id_train: Number(id_train) }
+        });
 
         if (!train) {
             return response.status(404).json({
                 status: false,
                 message: "Train not found",
-            })
+            });
         }
 
+        // Create carriage and auto-generate seats
         const result = await prisma.$transaction(async (tx: any) => {
-            const carriage = await tx.carriage.create({
+            const newCarriage = await tx.carriage.create({
                 data: {
                     carriage_name,
-                    id_train: Number(id_train),
-                    carriage_category: category,
-                    quota: 0,
+                    carriage_category,
+                    quota: Number(quota),
+                    id_train: Number(id_train)
                 },
-            })
+            });
 
-            const seats = generateSeatByCarriageCategory(
-                category,
-                carriage.id_carriage
-            )
+            // Auto-generate seats based on quota
+            const seats = [];
+            for (let i = 1; i <= Number(quota); i++) {
+                seats.push({
+                    seat_num: `${carriage_name}-${String(i).padStart(2, '0')}`,
+                    id_carriage: newCarriage.id_carriage
+                });
+            }
 
-            await tx.seat.createMany({ data: seats })
+            if (seats.length > 0) {
+                await tx.seat.createMany({ data: seats });
+            }
 
-            // ⬇️ UPDATE + RETURN DATA TERBARU
-            return await tx.carriage.update({
-                where: { id_carriage: carriage.id_carriage },
-                data: { quota: seats.length },
-            })
-        })
+            return newCarriage;
+        });
 
         return response.status(201).json({
             status: true,
-            message: "Carriage & seats created successfully",
             data: result,
-        })
+            message: "Carriage created with auto-generated seats",
+        });
     } catch (error) {
         return response.status(400).json({
             status: false,
             message: `Failed to create carriage. ${error}`,
-        })
+        });
     }
-}
-
-
-const generateSeatByCarriageCategory = (
-    category: carriage_category,
-    carriageId: number
-) => {
-    let rows = 0;
-    let columns: string[] = [];
-
-    switch (category) {
-        case "BUSSINESS":
-            rows = 5;
-            columns = ["A", "B"];
-            break;
-
-        case "EKSEKUTIVE":
-            rows = 10;
-            columns = ["A", "B"];
-            break;
-
-        case "ECONOMY":
-            rows = 10;
-            columns = ["A", "B", "C", "D"];
-            break;
-    }
-
-    const seats = [];
-
-    for (let row = 1; row <= rows; row++) {
-        for (const col of columns) {
-            seats.push({
-                seat_num: `${row}${col}`,
-                id_carriage: carriageId,
-            });
-        }
-    }
-
-    return seats;
 };
 
+/**
+ * Update carriage - regenerates seats when category changes
+ */
 export const updateCarriage = async (request: Request, response: Response) => {
     try {
-        const { id } = request.params
-        const { carriage_name, id_train, carriage_category } = request.body
+        const { id } = request.params;
+        const { carriage_name, carriage_category, id_train } = request.body;
 
-        const carriage = await prisma.carriage.findUnique({
-            where: { id_carriage: Number(id) },
-        })
+        const carriageId = Number(id);
 
-        if (!carriage) {
+        const findCarriage = await prisma.carriage.findUnique({
+            where: { id_carriage: carriageId },
+        });
+
+        if (!findCarriage) {
             return response.status(404).json({
                 status: false,
                 message: "Carriage not found",
-            })
+            });
         }
 
+        // Category → quota mapping
+        const categoryQuotaMap: Record<string, number> = {
+            'ECONOMY': 40,
+            'BUSINESS': 10,
+            'EXECUTIVE': 20
+        };
+
+        // Validate category if provided
+        if (carriage_category) {
+            if (!categoryQuotaMap[carriage_category]) {
+                return response.status(400).json({
+                    status: false,
+                    message: "carriage_category must be ECONOMY, EXECUTIVE, or BUSINESS",
+                });
+            }
+        }
+
+        // Validate train if provided
         if (id_train) {
             const train = await prisma.train.findUnique({
-                where: { id_train: Number(id_train) },
-            })
-
+                where: { id_train: Number(id_train) }
+            });
             if (!train) {
                 return response.status(404).json({
                     status: false,
                     message: "Train not found",
-                })
+                });
             }
         }
 
+        const newCategory = carriage_category ?? findCarriage.carriage_category;
+        const newName = carriage_name ?? findCarriage.carriage_name;
+        const categoryChanged = carriage_category && carriage_category !== findCarriage.carriage_category;
+
         const result = await prisma.$transaction(async (tx: any) => {
-            let quota = carriage.quota
+            // If category changed, regenerate seats with new quota
+            if (categoryChanged) {
+                const newQuota = categoryQuotaMap[newCategory];
 
-            // category berubah → regenerate seat
-            if (
-                carriage_category &&
-                carriage_category !== carriage.carriage_category
-            ) {
-                await tx.seat.deleteMany({
-                    where: { id_carriage: carriage.id_carriage },
-                })
+                // Get all existing seats for this carriage
+                const existingSeats = await tx.seat.findMany({
+                    where: { id_carriage: carriageId },
+                    select: { id_seat: true }
+                });
+                const seatIds = existingSeats.map((s: any) => s.id_seat);
 
-                const seats = generateSeatByCarriageCategory(
-                    carriage_category,
-                    carriage.id_carriage
-                )
+                // Delete related seat_schedule and purchase_detail records
+                if (seatIds.length > 0) {
+                    await tx.seat_schedule.deleteMany({
+                        where: { id_seat: { in: seatIds } }
+                    });
+                    await tx.purchase_detail.deleteMany({
+                        where: { id_seat: { in: seatIds } }
+                    });
+                    await tx.seat.deleteMany({
+                        where: { id_carriage: carriageId }
+                    });
+                }
 
-                await tx.seat.createMany({ data: seats })
+                // Create new seats based on new quota
+                const seats = [];
+                for (let i = 1; i <= newQuota; i++) {
+                    seats.push({
+                        seat_num: `${newName}-${String(i).padStart(2, '0')}`,
+                        id_carriage: carriageId
+                    });
+                }
+                if (seats.length > 0) {
+                    await tx.seat.createMany({ data: seats });
+                }
 
-                quota = seats.length
-            }
-
-            // update carriage + return data TERBARU
-            return await tx.carriage.update({
-                where: { id_carriage: carriage.id_carriage },
-                data: {
-                    carriage_name: carriage_name ?? carriage.carriage_name,
-                    id_train: id_train ? Number(id_train) : carriage.id_train,
-                    carriage_category:
-                        carriage_category ?? carriage.carriage_category,
-                    quota,
-                },
-                include: {
-                    train: {
-                        select: {
-                            id_train: true,
-                            train_name: true,
-                        },
+                // Update carriage with new category and quota
+                return await tx.carriage.update({
+                    where: { id_carriage: carriageId },
+                    data: {
+                        carriage_name: newName,
+                        carriage_category: newCategory,
+                        quota: newQuota,
+                        id_train: id_train ? Number(id_train) : findCarriage.id_train
                     },
-                },
-            })
-        })
+                });
+            } else {
+                // No category change, just update name/train
+                return await tx.carriage.update({
+                    where: { id_carriage: carriageId },
+                    data: {
+                        carriage_name: newName,
+                        carriage_category: newCategory,
+                        id_train: id_train ? Number(id_train) : findCarriage.id_train
+                    },
+                });
+            }
+        });
 
         return response.status(200).json({
             status: true,
-            message: "Carriage updated successfully",
             data: result,
-        })
+            message: categoryChanged
+                ? "Carriage updated and seats regenerated successfully"
+                : "Carriage updated successfully",
+        });
     } catch (error) {
         return response.status(400).json({
             status: false,
             message: `There is an error. ${error}`,
-        })
+        });
     }
-}
+};
 
+/**
+ * Delete carriage - BLOCKED if parent train has active schedules
+ */
 export const deleteCarriage = async (request: Request, response: Response) => {
     try {
-        const { id } = request.params
-        const carriageId = Number(id)
+        const { id } = request.params;
 
+        if (!id) {
+            return response.status(400).json({
+                status: false,
+                message: "Carriage id is required",
+            });
+        }
+
+        const carriageId = Number(id);
+
+        // Get carriage with train info
         const carriage = await prisma.carriage.findUnique({
             where: { id_carriage: carriageId },
-        })
+            include: {
+                train: {
+                    select: {
+                        id_train: true,
+                        train_status: true
+                    }
+                }
+            }
+        });
 
         if (!carriage) {
             return response.status(404).json({
                 status: false,
                 message: "Carriage not found",
-            })
+            });
         }
 
-        await prisma.$transaction(async (tx: any) => {
-            // hapus seat
-            await tx.seat.deleteMany({
-                where: { id_carriage: carriageId },
-            })
+        // Check if parent train has active schedules (isScheduleLocked)
+        if (carriage.train?.train_status === 'ACTIVE') {
+            return response.status(409).json({
+                status: false,
+                message: "Cannot delete this carriage because its train is currently used in an active schedule.",
+            });
+        }
 
-            // hapus carriage
-            await tx.carriage.delete({
+        // Cascade delete seats and carriage
+        await prisma.$transaction(async (tx: any) => {
+            // Get all seats for this carriage
+            const seats = await tx.seat.findMany({
                 where: { id_carriage: carriageId },
-            })
-        })
+                select: { id_seat: true }
+            });
+            const seatIds = seats.map((s: any) => s.id_seat);
+
+            // Delete seat_schedule records
+            if (seatIds.length > 0) {
+                await tx.seat_schedule.deleteMany({
+                    where: { id_seat: { in: seatIds } }
+                });
+
+                // Delete purchase_detail records
+                await tx.purchase_detail.deleteMany({
+                    where: { id_seat: { in: seatIds } }
+                });
+
+                // Delete seats
+                await tx.seat.deleteMany({
+                    where: { id_carriage: carriageId }
+                });
+            }
+
+            // Delete carriage
+            await tx.carriage.delete({
+                where: { id_carriage: carriageId }
+            });
+        });
 
         return response.status(200).json({
             status: true,
-            message: "Carriage & seats deleted successfully",
-        })
+            message: "Carriage deleted successfully",
+        });
     } catch (error) {
         return response.status(400).json({
             status: false,
             message: `There is an error. ${error}`,
-        })
+        });
     }
-}
+};
