@@ -8,6 +8,8 @@ import {
     getServerTime,
     getCustomerSchedules,
     getSeatMappingBySchedule,
+    getStations,
+    searchSchedules,
 } from "../controllers/scheduleController.js"
 import { authMiddleware } from "../middleware/authMiddleware.js"
 import { roleGuard } from "../middleware/roleGuard.js"
@@ -34,6 +36,8 @@ router.get("/server-time", getServerTime)
 
 // Protected routes
 router.get("/customer", authMiddleware, roleGuard('CUSTOMER', 'ADMIN'), getCustomerSchedules)
+router.get("/stations", authMiddleware, roleGuard('CUSTOMER', 'ADMIN'), getStations)
+router.get("/search", authMiddleware, roleGuard('CUSTOMER', 'ADMIN'), searchSchedules)
 
 router.get("/", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getAllSchedule)
 

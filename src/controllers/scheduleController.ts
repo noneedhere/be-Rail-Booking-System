@@ -503,6 +503,131 @@ export const getCustomerSchedules = async (request: Request, response: Response)
     }
 };
 
+/**
+ * Get unique station names from all schedules.
+ * Returns deduplicated list of departure and destination values for autocomplete.
+ */
+export const getStations = async (_request: Request, response: Response) => {
+    try {
+        const departures = await prisma.schedule.findMany({
+            select: { departure: true },
+            distinct: ['departure']
+        });
+
+        const destinations = await prisma.schedule.findMany({
+            select: { destination: true },
+            distinct: ['destination']
+        });
+
+        // Merge and deduplicate
+        const stationSet = new Set<string>();
+        departures.forEach((d: any) => stationSet.add(d.departure));
+        destinations.forEach((d: any) => stationSet.add(d.destination));
+
+        const stations = Array.from(stationSet).sort();
+
+        return response.status(200).json({
+            status: true,
+            data: stations,
+            message: 'Stations retrieved'
+        });
+    } catch (error) {
+        return response.status(500).json({
+            status: false,
+            message: `Failed to get stations. ${error}`
+        });
+    }
+};
+
+/**
+ * Search schedules by departure, arrival, date, and guest count.
+ * Returns filtered active schedules matching criteria.
+ */
+export const searchSchedules = async (request: Request, response: Response) => {
+    try {
+        const { departure, arrival, date, guests } = request.query;
+
+        if (!departure || !arrival || !date) {
+            return response.status(400).json({
+                status: false,
+                message: 'departure, arrival, and date are required'
+            });
+        }
+
+        if (departure.toString().toLowerCase() === arrival.toString().toLowerCase()) {
+            return response.status(400).json({
+                status: false,
+                message: 'Departure and arrival cannot be the same'
+            });
+        }
+
+        // Auto-expire past schedules
+        const expiredSchedules = await prisma.schedule.findMany({
+            where: {
+                status: "ACTIVED",
+                arrival_date: { lt: getNowWIB() }
+            },
+            select: { id_schedule: true, id_train: true }
+        });
+
+        if (expiredSchedules.length > 0) {
+            const trainIds = [...new Set(expiredSchedules.map((s: any) => s.id_train))];
+            await prisma.$transaction(async (tx: any) => {
+                await tx.schedule.updateMany({
+                    where: {
+                        status: "ACTIVED",
+                        arrival_date: { lt: getNowWIB() }
+                    },
+                    data: { status: "FINISHED" }
+                });
+                for (const trainId of trainIds) {
+                    await updateTrainStatus(trainId as number, tx);
+                }
+            });
+        }
+
+        // Build date range for the selected day (start of day to end of day)
+        const searchDate = new Date(date.toString());
+        const startOfDay = new Date(searchDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(searchDate);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const guestCount = guests ? Number(guests) : 1;
+
+        const schedules = await prisma.schedule.findMany({
+            where: {
+                status: "ACTIVED",
+                departure: { contains: departure.toString() },
+                destination: { contains: arrival.toString() },
+                departure_date: {
+                    gte: startOfDay,
+                    lte: endOfDay
+                },
+                quota_total: { gte: guestCount }
+            },
+            orderBy: {
+                departure_date: 'asc'
+            }
+        });
+
+        const message = schedules.length > 0
+            ? `${schedules.length} schedule${schedules.length !== 1 ? 's' : ''} found`
+            : 'No schedules found for your criteria';
+
+        return response.status(200).json({
+            status: true,
+            data: schedules,
+            message
+        });
+    } catch (error) {
+        return response.status(400).json({
+            status: false,
+            message: `There is an error. ${error}`
+        });
+    }
+};
+
 export const deleteSchedule = async (request: Request, response: Response) => {
     try {
         const { id } = request.params;
