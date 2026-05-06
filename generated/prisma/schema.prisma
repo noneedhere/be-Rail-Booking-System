@@ -49,9 +49,9 @@ model seat {
   id_seat         Int               @id @default(autoincrement())
   seat_num        String
   id_carriage     Int
+  seat_schedule   seat_schedule[]
   purchase_detail purchase_detail[]
   carriage        carriage          @relation(fields: [id_carriage], references: [id_carriage], map: "Seat_carriageId_fkey")
-  seat_schedule   seat_schedule[]
 
   @@index([id_carriage], map: "Seat_carriageId_fkey")
 }
@@ -62,13 +62,18 @@ model seat_schedule {
   id_schedule                     Int
   seatschedule_status             seatschedule_status @default(AVAILABLE)
   purchaseDetailId_purchasedetail Int?
+  held_by                         Int?
+  held_until                      DateTime?
   purchase_detail                 purchase_detail?    @relation(fields: [purchaseDetailId_purchasedetail], references: [id_purchasedetail], map: "SeatSchedule_purchaseDetailId_purchasedetail_fkey")
   schedule                        schedule            @relation(fields: [id_schedule], references: [id_schedule], map: "SeatSchedule_scheduleId_fkey")
   seat                            seat                @relation(fields: [id_seat], references: [id_seat], map: "SeatSchedule_seatId_fkey")
+  held_user                       user?               @relation(fields: [held_by], references: [id_user], map: "SeatSchedule_heldBy_fkey")
 
   @@unique([id_seat, id_schedule], map: "SeatSchedule_seatId_scheduleId_key")
   @@index([purchaseDetailId_purchasedetail], map: "SeatSchedule_purchaseDetailId_purchasedetail_fkey")
   @@index([id_schedule], map: "SeatSchedule_scheduleId_fkey")
+  @@index([held_by], map: "SeatSchedule_heldBy_fkey")
+  @@index([held_until], map: "SeatSchedule_heldUntil_idx")
 }
 
 model ticket_purchase {
@@ -128,11 +133,13 @@ model user {
   nik             String            @unique(map: "User_nik_key")
   phone           String            @default("")
   ticket_purchase ticket_purchase[]
+  seat_holds      seat_schedule[]
 }
 
 enum seatschedule_status {
   AVAILABLE
   BOOKED
+  HELD
 }
 
 enum carriage_category {

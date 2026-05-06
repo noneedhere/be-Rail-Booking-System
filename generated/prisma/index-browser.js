@@ -152,7 +152,9 @@ exports.Prisma.Seat_scheduleScalarFieldEnum = {
   id_seat: 'id_seat',
   id_schedule: 'id_schedule',
   seatschedule_status: 'seatschedule_status',
-  purchaseDetailId_purchasedetail: 'purchaseDetailId_purchasedetail'
+  purchaseDetailId_purchasedetail: 'purchaseDetailId_purchasedetail',
+  held_by: 'held_by',
+  held_until: 'held_until'
 };
 
 exports.Prisma.Ticket_purchaseScalarFieldEnum = {
@@ -263,7 +265,8 @@ exports.status = exports.$Enums.status = {
 
 exports.seatschedule_status = exports.$Enums.seatschedule_status = {
   AVAILABLE: 'AVAILABLE',
-  BOOKED: 'BOOKED'
+  BOOKED: 'BOOKED',
+  HELD: 'HELD'
 };
 
 exports.train_status = exports.$Enums.train_status = {

@@ -750,19 +750,33 @@ export const getSeatMappingBySchedule = async (request: Request, response: Respo
             });
         }
 
+        // Get the authenticated user ID (if available) for HELD_BY_ME logic
+        const currentUserId = (request as any).user?.id_user || null;
+
         // Get all seat_schedule entries for this schedule to check availability
         const seatSchedules = await prisma.seat_schedule.findMany({
             where: { id_schedule: Number(id) },
             select: {
                 id_seat: true,
-                seatschedule_status: true
+                seatschedule_status: true,
+                held_by: true,
+                held_until: true,
             }
         });
 
         // Create a map for quick lookup of seat status
-        const seatStatusMap = new Map<number, string>();
+        const seatStatusMap = new Map<number, { status: string; held_by: number | null; held_until: Date | null }>();
         seatSchedules.forEach((ss: any) => {
-            seatStatusMap.set(ss.id_seat, ss.seatschedule_status);
+            // Auto-expire holds that have passed their deadline
+            let effectiveStatus = ss.seatschedule_status;
+            if (effectiveStatus === 'HELD' && ss.held_until && new Date(ss.held_until) < new Date()) {
+                effectiveStatus = 'AVAILABLE';
+            }
+            seatStatusMap.set(ss.id_seat, {
+                status: effectiveStatus,
+                held_by: ss.held_by,
+                held_until: ss.held_until,
+            });
         });
 
         // Build carriage mapping data
@@ -776,7 +790,13 @@ export const getSeatMappingBySchedule = async (request: Request, response: Respo
             const seats = carriage.seat.map((seat: any, index: number) => {
                 const row = Math.floor(index / layoutConfig.columns) + 1;
                 const col = (index % layoutConfig.columns) + 1;
-                const status = seatStatusMap.get(seat.id_seat) || 'UNAVAILABLE';
+                const seatInfo = seatStatusMap.get(seat.id_seat);
+                let status = seatInfo?.status || 'UNAVAILABLE';
+
+                // Distinguish HELD_BY_ME from HELD by other users
+                if (status === 'HELD' && currentUserId && seatInfo?.held_by === currentUserId) {
+                    status = 'HELD_BY_ME';
+                }
 
                 return {
                     id_seat: seat.id_seat,

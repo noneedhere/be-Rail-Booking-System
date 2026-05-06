@@ -5,6 +5,8 @@ import {
     createTicketPurchase,
     getMyTicketPurchases,
     deletePurchase,
+    holdSeats,
+    releaseSeats,
 } from "../controllers/purchaseController.js"
 import { authMiddleware } from "../middleware/authMiddleware.js"
 import { roleGuard } from "../middleware/roleGuard.js"
@@ -25,6 +27,10 @@ router.get("/:id", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), getPurchaseBy
 
 // Authenticated users - create purchase
 router.post("/", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), upload.none(), createTicketPurchase)
+
+// Seat hold/release endpoints (used by booking flow)
+router.post("/hold", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), holdSeats)
+router.delete("/hold", authMiddleware, roleGuard('ADMIN', 'CUSTOMER'), releaseSeats)
 
 // Admin only - delete purchase
 router.delete("/:id", authMiddleware, roleGuard('ADMIN'), deletePurchase)
