@@ -88,22 +88,54 @@ async function expireSchedules(): Promise<void> {
 }
 
 /**
- * Initialize the schedule auto-expiration cron job.
- * Runs every minute to check for expired schedules.
+ * Release expired seat holds.
+ * Seats held beyond their hold_until time are reset to AVAILABLE.
+ */
+async function expireHolds(): Promise<void> {
+    try {
+        const result = await prisma.seat_schedule.updateMany({
+            where: {
+                seatschedule_status: 'HELD',
+                held_until: { lt: new Date() },
+            },
+            data: {
+                seatschedule_status: 'AVAILABLE',
+                held_by: null,
+                held_until: null,
+            },
+        });
+
+        if (result.count > 0) {
+            console.log(`[${new Date().toISOString()}] [CRON] Released ${result.count} expired seat hold(s)`);
+        }
+    } catch (error) {
+        console.error(`[${new Date().toISOString()}] [CRON ERROR] Failed to expire holds:`, error);
+    }
+}
+
+/**
+ * Initialize the schedule auto-expiration and hold cleanup cron jobs.
+ * Schedule expiration runs every minute, hold cleanup every 30 seconds.
  */
 export function initScheduleAutoExpire(): void {
-    // Run every minute: '* * * * *'
+    // Schedule expiration: every minute
     cron.schedule('* * * * *', async () => {
         await expireSchedules();
     });
 
-    console.log('[CRON] Schedule auto-expiration service initialized (runs every minute)');
+    // Hold expiration: every 30 seconds
+    cron.schedule('*/30 * * * * *', async () => {
+        await expireHolds();
+    });
 
-    // Run once immediately on startup to catch any pending expirations
-    expireSchedules().then(() => {
-        console.log('[CRON] Initial schedule expiration check completed');
+    console.log('[CRON] Schedule auto-expiration service initialized (runs every minute)');
+    console.log('[CRON] Hold expiration service initialized (runs every 30 seconds)');
+
+    // Run once immediately on startup
+    Promise.all([expireSchedules(), expireHolds()]).then(() => {
+        console.log('[CRON] Initial expiration checks completed');
     }).catch((error) => {
-        console.error('[CRON] Initial schedule expiration check failed:', error);
+        console.error('[CRON] Initial expiration checks failed:', error);
     });
 }
 

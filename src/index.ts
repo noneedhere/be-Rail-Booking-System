@@ -9,6 +9,7 @@ import carriageRoute from "./routes/carriageRoute.js"
 import seatRoute from "./routes/seatRoute.js"
 import scheduleRoute from "./routes/scheduleRoute.js"
 import purchaseRoute from "./routes/purchaseRoute.js"
+import dashboardRoute from "./routes/dashboardRoute.js"
 import { initScheduleAutoExpire } from "./services/scheduleAutoExpire.js"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -42,6 +43,7 @@ app.use("/carriage", carriageRoute)
 app.use("/seat", seatRoute)
 app.use("/schedule", scheduleRoute)
 app.use("/purchase", purchaseRoute)
+app.use("/dashboard", dashboardRoute)
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`)

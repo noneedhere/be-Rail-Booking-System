@@ -60,7 +60,8 @@ export type user = $Result.DefaultSelection<Prisma.$userPayload>
 export namespace $Enums {
   export const seatschedule_status: {
   AVAILABLE: 'AVAILABLE',
-  BOOKED: 'BOOKED'
+  BOOKED: 'BOOKED',
+  HELD: 'HELD'
 };
 
 export type seatschedule_status = (typeof seatschedule_status)[keyof typeof seatschedule_status]
@@ -1573,13 +1574,13 @@ export namespace Prisma {
    */
 
   export type SeatCountOutputType = {
-    purchase_detail: number
     seat_schedule: number
+    purchase_detail: number
   }
 
   export type SeatCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    purchase_detail?: boolean | SeatCountOutputTypeCountPurchase_detailArgs
     seat_schedule?: boolean | SeatCountOutputTypeCountSeat_scheduleArgs
+    purchase_detail?: boolean | SeatCountOutputTypeCountPurchase_detailArgs
   }
 
   // Custom InputTypes
@@ -1596,15 +1597,15 @@ export namespace Prisma {
   /**
    * SeatCountOutputType without action
    */
-  export type SeatCountOutputTypeCountPurchase_detailArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: purchase_detailWhereInput
+  export type SeatCountOutputTypeCountSeat_scheduleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: seat_scheduleWhereInput
   }
 
   /**
    * SeatCountOutputType without action
    */
-  export type SeatCountOutputTypeCountSeat_scheduleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: seat_scheduleWhereInput
+  export type SeatCountOutputTypeCountPurchase_detailArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: purchase_detailWhereInput
   }
 
 
@@ -1716,10 +1717,12 @@ export namespace Prisma {
 
   export type UserCountOutputType = {
     ticket_purchase: number
+    seat_holds: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ticket_purchase?: boolean | UserCountOutputTypeCountTicket_purchaseArgs
+    seat_holds?: boolean | UserCountOutputTypeCountSeat_holdsArgs
   }
 
   // Custom InputTypes
@@ -1738,6 +1741,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountTicket_purchaseArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ticket_purchaseWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountSeat_holdsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: seat_scheduleWhereInput
   }
 
 
@@ -4020,9 +4030,9 @@ export namespace Prisma {
     id_seat?: boolean
     seat_num?: boolean
     id_carriage?: boolean
+    seat_schedule?: boolean | seat$seat_scheduleArgs<ExtArgs>
     purchase_detail?: boolean | seat$purchase_detailArgs<ExtArgs>
     carriage?: boolean | carriageDefaultArgs<ExtArgs>
-    seat_schedule?: boolean | seat$seat_scheduleArgs<ExtArgs>
     _count?: boolean | SeatCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["seat"]>
 
@@ -4036,18 +4046,18 @@ export namespace Prisma {
 
   export type seatOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id_seat" | "seat_num" | "id_carriage", ExtArgs["result"]["seat"]>
   export type seatInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    seat_schedule?: boolean | seat$seat_scheduleArgs<ExtArgs>
     purchase_detail?: boolean | seat$purchase_detailArgs<ExtArgs>
     carriage?: boolean | carriageDefaultArgs<ExtArgs>
-    seat_schedule?: boolean | seat$seat_scheduleArgs<ExtArgs>
     _count?: boolean | SeatCountOutputTypeDefaultArgs<ExtArgs>
   }
 
   export type $seatPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "seat"
     objects: {
+      seat_schedule: Prisma.$seat_schedulePayload<ExtArgs>[]
       purchase_detail: Prisma.$purchase_detailPayload<ExtArgs>[]
       carriage: Prisma.$carriagePayload<ExtArgs>
-      seat_schedule: Prisma.$seat_schedulePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id_seat: number
@@ -4393,9 +4403,9 @@ export namespace Prisma {
    */
   export interface Prisma__seatClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    seat_schedule<T extends seat$seat_scheduleArgs<ExtArgs> = {}>(args?: Subset<T, seat$seat_scheduleArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$seat_schedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     purchase_detail<T extends seat$purchase_detailArgs<ExtArgs> = {}>(args?: Subset<T, seat$purchase_detailArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$purchase_detailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     carriage<T extends carriageDefaultArgs<ExtArgs> = {}>(args?: Subset<T, carriageDefaultArgs<ExtArgs>>): Prisma__carriageClient<$Result.GetResult<Prisma.$carriagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    seat_schedule<T extends seat$seat_scheduleArgs<ExtArgs> = {}>(args?: Subset<T, seat$seat_scheduleArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$seat_schedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4771,30 +4781,6 @@ export namespace Prisma {
   }
 
   /**
-   * seat.purchase_detail
-   */
-  export type seat$purchase_detailArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the purchase_detail
-     */
-    select?: purchase_detailSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the purchase_detail
-     */
-    omit?: purchase_detailOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: purchase_detailInclude<ExtArgs> | null
-    where?: purchase_detailWhereInput
-    orderBy?: purchase_detailOrderByWithRelationInput | purchase_detailOrderByWithRelationInput[]
-    cursor?: purchase_detailWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: Purchase_detailScalarFieldEnum | Purchase_detailScalarFieldEnum[]
-  }
-
-  /**
    * seat.seat_schedule
    */
   export type seat$seat_scheduleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4816,6 +4802,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Seat_scheduleScalarFieldEnum | Seat_scheduleScalarFieldEnum[]
+  }
+
+  /**
+   * seat.purchase_detail
+   */
+  export type seat$purchase_detailArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the purchase_detail
+     */
+    select?: purchase_detailSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the purchase_detail
+     */
+    omit?: purchase_detailOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: purchase_detailInclude<ExtArgs> | null
+    where?: purchase_detailWhereInput
+    orderBy?: purchase_detailOrderByWithRelationInput | purchase_detailOrderByWithRelationInput[]
+    cursor?: purchase_detailWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Purchase_detailScalarFieldEnum | Purchase_detailScalarFieldEnum[]
   }
 
   /**
@@ -4854,6 +4864,7 @@ export namespace Prisma {
     id_seat: number | null
     id_schedule: number | null
     purchaseDetailId_purchasedetail: number | null
+    held_by: number | null
   }
 
   export type Seat_scheduleSumAggregateOutputType = {
@@ -4861,6 +4872,7 @@ export namespace Prisma {
     id_seat: number | null
     id_schedule: number | null
     purchaseDetailId_purchasedetail: number | null
+    held_by: number | null
   }
 
   export type Seat_scheduleMinAggregateOutputType = {
@@ -4869,6 +4881,8 @@ export namespace Prisma {
     id_schedule: number | null
     seatschedule_status: $Enums.seatschedule_status | null
     purchaseDetailId_purchasedetail: number | null
+    held_by: number | null
+    held_until: Date | null
   }
 
   export type Seat_scheduleMaxAggregateOutputType = {
@@ -4877,6 +4891,8 @@ export namespace Prisma {
     id_schedule: number | null
     seatschedule_status: $Enums.seatschedule_status | null
     purchaseDetailId_purchasedetail: number | null
+    held_by: number | null
+    held_until: Date | null
   }
 
   export type Seat_scheduleCountAggregateOutputType = {
@@ -4885,6 +4901,8 @@ export namespace Prisma {
     id_schedule: number
     seatschedule_status: number
     purchaseDetailId_purchasedetail: number
+    held_by: number
+    held_until: number
     _all: number
   }
 
@@ -4894,6 +4912,7 @@ export namespace Prisma {
     id_seat?: true
     id_schedule?: true
     purchaseDetailId_purchasedetail?: true
+    held_by?: true
   }
 
   export type Seat_scheduleSumAggregateInputType = {
@@ -4901,6 +4920,7 @@ export namespace Prisma {
     id_seat?: true
     id_schedule?: true
     purchaseDetailId_purchasedetail?: true
+    held_by?: true
   }
 
   export type Seat_scheduleMinAggregateInputType = {
@@ -4909,6 +4929,8 @@ export namespace Prisma {
     id_schedule?: true
     seatschedule_status?: true
     purchaseDetailId_purchasedetail?: true
+    held_by?: true
+    held_until?: true
   }
 
   export type Seat_scheduleMaxAggregateInputType = {
@@ -4917,6 +4939,8 @@ export namespace Prisma {
     id_schedule?: true
     seatschedule_status?: true
     purchaseDetailId_purchasedetail?: true
+    held_by?: true
+    held_until?: true
   }
 
   export type Seat_scheduleCountAggregateInputType = {
@@ -4925,6 +4949,8 @@ export namespace Prisma {
     id_schedule?: true
     seatschedule_status?: true
     purchaseDetailId_purchasedetail?: true
+    held_by?: true
+    held_until?: true
     _all?: true
   }
 
@@ -5020,6 +5046,8 @@ export namespace Prisma {
     id_schedule: number
     seatschedule_status: $Enums.seatschedule_status
     purchaseDetailId_purchasedetail: number | null
+    held_by: number | null
+    held_until: Date | null
     _count: Seat_scheduleCountAggregateOutputType | null
     _avg: Seat_scheduleAvgAggregateOutputType | null
     _sum: Seat_scheduleSumAggregateOutputType | null
@@ -5047,9 +5075,12 @@ export namespace Prisma {
     id_schedule?: boolean
     seatschedule_status?: boolean
     purchaseDetailId_purchasedetail?: boolean
+    held_by?: boolean
+    held_until?: boolean
     purchase_detail?: boolean | seat_schedule$purchase_detailArgs<ExtArgs>
     schedule?: boolean | scheduleDefaultArgs<ExtArgs>
     seat?: boolean | seatDefaultArgs<ExtArgs>
+    held_user?: boolean | seat_schedule$held_userArgs<ExtArgs>
   }, ExtArgs["result"]["seat_schedule"]>
 
 
@@ -5060,13 +5091,16 @@ export namespace Prisma {
     id_schedule?: boolean
     seatschedule_status?: boolean
     purchaseDetailId_purchasedetail?: boolean
+    held_by?: boolean
+    held_until?: boolean
   }
 
-  export type seat_scheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id_seat_schedule" | "id_seat" | "id_schedule" | "seatschedule_status" | "purchaseDetailId_purchasedetail", ExtArgs["result"]["seat_schedule"]>
+  export type seat_scheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id_seat_schedule" | "id_seat" | "id_schedule" | "seatschedule_status" | "purchaseDetailId_purchasedetail" | "held_by" | "held_until", ExtArgs["result"]["seat_schedule"]>
   export type seat_scheduleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     purchase_detail?: boolean | seat_schedule$purchase_detailArgs<ExtArgs>
     schedule?: boolean | scheduleDefaultArgs<ExtArgs>
     seat?: boolean | seatDefaultArgs<ExtArgs>
+    held_user?: boolean | seat_schedule$held_userArgs<ExtArgs>
   }
 
   export type $seat_schedulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5075,6 +5109,7 @@ export namespace Prisma {
       purchase_detail: Prisma.$purchase_detailPayload<ExtArgs> | null
       schedule: Prisma.$schedulePayload<ExtArgs>
       seat: Prisma.$seatPayload<ExtArgs>
+      held_user: Prisma.$userPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id_seat_schedule: number
@@ -5082,6 +5117,8 @@ export namespace Prisma {
       id_schedule: number
       seatschedule_status: $Enums.seatschedule_status
       purchaseDetailId_purchasedetail: number | null
+      held_by: number | null
+      held_until: Date | null
     }, ExtArgs["result"]["seat_schedule"]>
     composites: {}
   }
@@ -5425,6 +5462,7 @@ export namespace Prisma {
     purchase_detail<T extends seat_schedule$purchase_detailArgs<ExtArgs> = {}>(args?: Subset<T, seat_schedule$purchase_detailArgs<ExtArgs>>): Prisma__purchase_detailClient<$Result.GetResult<Prisma.$purchase_detailPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     schedule<T extends scheduleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, scheduleDefaultArgs<ExtArgs>>): Prisma__scheduleClient<$Result.GetResult<Prisma.$schedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     seat<T extends seatDefaultArgs<ExtArgs> = {}>(args?: Subset<T, seatDefaultArgs<ExtArgs>>): Prisma__seatClient<$Result.GetResult<Prisma.$seatPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    held_user<T extends seat_schedule$held_userArgs<ExtArgs> = {}>(args?: Subset<T, seat_schedule$held_userArgs<ExtArgs>>): Prisma__userClient<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5459,6 +5497,8 @@ export namespace Prisma {
     readonly id_schedule: FieldRef<"seat_schedule", 'Int'>
     readonly seatschedule_status: FieldRef<"seat_schedule", 'seatschedule_status'>
     readonly purchaseDetailId_purchasedetail: FieldRef<"seat_schedule", 'Int'>
+    readonly held_by: FieldRef<"seat_schedule", 'Int'>
+    readonly held_until: FieldRef<"seat_schedule", 'DateTime'>
   }
     
 
@@ -5818,6 +5858,25 @@ export namespace Prisma {
      */
     include?: purchase_detailInclude<ExtArgs> | null
     where?: purchase_detailWhereInput
+  }
+
+  /**
+   * seat_schedule.held_user
+   */
+  export type seat_schedule$held_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user
+     */
+    select?: userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user
+     */
+    omit?: userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: userInclude<ExtArgs> | null
+    where?: userWhereInput
   }
 
   /**
@@ -9195,6 +9254,7 @@ export namespace Prisma {
     nik?: boolean
     phone?: boolean
     ticket_purchase?: boolean | user$ticket_purchaseArgs<ExtArgs>
+    seat_holds?: boolean | user$seat_holdsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -9217,6 +9277,7 @@ export namespace Prisma {
   export type userOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id_user" | "username" | "email" | "password" | "role" | "profile_picture" | "createdAt" | "updatedAt" | "address" | "nik" | "phone", ExtArgs["result"]["user"]>
   export type userInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ticket_purchase?: boolean | user$ticket_purchaseArgs<ExtArgs>
+    seat_holds?: boolean | user$seat_holdsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -9224,6 +9285,7 @@ export namespace Prisma {
     name: "user"
     objects: {
       ticket_purchase: Prisma.$ticket_purchasePayload<ExtArgs>[]
+      seat_holds: Prisma.$seat_schedulePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id_user: number
@@ -9578,6 +9640,7 @@ export namespace Prisma {
   export interface Prisma__userClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     ticket_purchase<T extends user$ticket_purchaseArgs<ExtArgs> = {}>(args?: Subset<T, user$ticket_purchaseArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ticket_purchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    seat_holds<T extends user$seat_holdsArgs<ExtArgs> = {}>(args?: Subset<T, user$seat_holdsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$seat_schedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9985,6 +10048,30 @@ export namespace Prisma {
   }
 
   /**
+   * user.seat_holds
+   */
+  export type user$seat_holdsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the seat_schedule
+     */
+    select?: seat_scheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the seat_schedule
+     */
+    omit?: seat_scheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: seat_scheduleInclude<ExtArgs> | null
+    where?: seat_scheduleWhereInput
+    orderBy?: seat_scheduleOrderByWithRelationInput | seat_scheduleOrderByWithRelationInput[]
+    cursor?: seat_scheduleWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Seat_scheduleScalarFieldEnum | Seat_scheduleScalarFieldEnum[]
+  }
+
+  /**
    * user without action
    */
   export type userDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10058,7 +10145,9 @@ export namespace Prisma {
     id_seat: 'id_seat',
     id_schedule: 'id_schedule',
     seatschedule_status: 'seatschedule_status',
-    purchaseDetailId_purchasedetail: 'purchaseDetailId_purchasedetail'
+    purchaseDetailId_purchasedetail: 'purchaseDetailId_purchasedetail',
+    held_by: 'held_by',
+    held_until: 'held_until'
   };
 
   export type Seat_scheduleScalarFieldEnum = (typeof Seat_scheduleScalarFieldEnum)[keyof typeof Seat_scheduleScalarFieldEnum]
@@ -10426,18 +10515,18 @@ export namespace Prisma {
     id_seat?: IntFilter<"seat"> | number
     seat_num?: StringFilter<"seat"> | string
     id_carriage?: IntFilter<"seat"> | number
+    seat_schedule?: Seat_scheduleListRelationFilter
     purchase_detail?: Purchase_detailListRelationFilter
     carriage?: XOR<CarriageScalarRelationFilter, carriageWhereInput>
-    seat_schedule?: Seat_scheduleListRelationFilter
   }
 
   export type seatOrderByWithRelationInput = {
     id_seat?: SortOrder
     seat_num?: SortOrder
     id_carriage?: SortOrder
+    seat_schedule?: seat_scheduleOrderByRelationAggregateInput
     purchase_detail?: purchase_detailOrderByRelationAggregateInput
     carriage?: carriageOrderByWithRelationInput
-    seat_schedule?: seat_scheduleOrderByRelationAggregateInput
     _relevance?: seatOrderByRelevanceInput
   }
 
@@ -10448,9 +10537,9 @@ export namespace Prisma {
     NOT?: seatWhereInput | seatWhereInput[]
     seat_num?: StringFilter<"seat"> | string
     id_carriage?: IntFilter<"seat"> | number
+    seat_schedule?: Seat_scheduleListRelationFilter
     purchase_detail?: Purchase_detailListRelationFilter
     carriage?: XOR<CarriageScalarRelationFilter, carriageWhereInput>
-    seat_schedule?: Seat_scheduleListRelationFilter
   }, "id_seat">
 
   export type seatOrderByWithAggregationInput = {
@@ -10482,9 +10571,12 @@ export namespace Prisma {
     id_schedule?: IntFilter<"seat_schedule"> | number
     seatschedule_status?: Enumseatschedule_statusFilter<"seat_schedule"> | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: IntNullableFilter<"seat_schedule"> | number | null
+    held_by?: IntNullableFilter<"seat_schedule"> | number | null
+    held_until?: DateTimeNullableFilter<"seat_schedule"> | Date | string | null
     purchase_detail?: XOR<Purchase_detailNullableScalarRelationFilter, purchase_detailWhereInput> | null
     schedule?: XOR<ScheduleScalarRelationFilter, scheduleWhereInput>
     seat?: XOR<SeatScalarRelationFilter, seatWhereInput>
+    held_user?: XOR<UserNullableScalarRelationFilter, userWhereInput> | null
   }
 
   export type seat_scheduleOrderByWithRelationInput = {
@@ -10493,9 +10585,12 @@ export namespace Prisma {
     id_schedule?: SortOrder
     seatschedule_status?: SortOrder
     purchaseDetailId_purchasedetail?: SortOrderInput | SortOrder
+    held_by?: SortOrderInput | SortOrder
+    held_until?: SortOrderInput | SortOrder
     purchase_detail?: purchase_detailOrderByWithRelationInput
     schedule?: scheduleOrderByWithRelationInput
     seat?: seatOrderByWithRelationInput
+    held_user?: userOrderByWithRelationInput
   }
 
   export type seat_scheduleWhereUniqueInput = Prisma.AtLeast<{
@@ -10508,9 +10603,12 @@ export namespace Prisma {
     id_schedule?: IntFilter<"seat_schedule"> | number
     seatschedule_status?: Enumseatschedule_statusFilter<"seat_schedule"> | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: IntNullableFilter<"seat_schedule"> | number | null
+    held_by?: IntNullableFilter<"seat_schedule"> | number | null
+    held_until?: DateTimeNullableFilter<"seat_schedule"> | Date | string | null
     purchase_detail?: XOR<Purchase_detailNullableScalarRelationFilter, purchase_detailWhereInput> | null
     schedule?: XOR<ScheduleScalarRelationFilter, scheduleWhereInput>
     seat?: XOR<SeatScalarRelationFilter, seatWhereInput>
+    held_user?: XOR<UserNullableScalarRelationFilter, userWhereInput> | null
   }, "id_seat_schedule" | "id_seat_id_schedule">
 
   export type seat_scheduleOrderByWithAggregationInput = {
@@ -10519,6 +10617,8 @@ export namespace Prisma {
     id_schedule?: SortOrder
     seatschedule_status?: SortOrder
     purchaseDetailId_purchasedetail?: SortOrderInput | SortOrder
+    held_by?: SortOrderInput | SortOrder
+    held_until?: SortOrderInput | SortOrder
     _count?: seat_scheduleCountOrderByAggregateInput
     _avg?: seat_scheduleAvgOrderByAggregateInput
     _max?: seat_scheduleMaxOrderByAggregateInput
@@ -10535,6 +10635,8 @@ export namespace Prisma {
     id_schedule?: IntWithAggregatesFilter<"seat_schedule"> | number
     seatschedule_status?: Enumseatschedule_statusWithAggregatesFilter<"seat_schedule"> | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: IntNullableWithAggregatesFilter<"seat_schedule"> | number | null
+    held_by?: IntNullableWithAggregatesFilter<"seat_schedule"> | number | null
+    held_until?: DateTimeNullableWithAggregatesFilter<"seat_schedule"> | Date | string | null
   }
 
   export type ticket_purchaseWhereInput = {
@@ -10767,6 +10869,7 @@ export namespace Prisma {
     nik?: StringFilter<"user"> | string
     phone?: StringFilter<"user"> | string
     ticket_purchase?: Ticket_purchaseListRelationFilter
+    seat_holds?: Seat_scheduleListRelationFilter
   }
 
   export type userOrderByWithRelationInput = {
@@ -10782,6 +10885,7 @@ export namespace Prisma {
     nik?: SortOrder
     phone?: SortOrder
     ticket_purchase?: ticket_purchaseOrderByRelationAggregateInput
+    seat_holds?: seat_scheduleOrderByRelationAggregateInput
     _relevance?: userOrderByRelevanceInput
   }
 
@@ -10801,6 +10905,7 @@ export namespace Prisma {
     address?: StringFilter<"user"> | string
     phone?: StringFilter<"user"> | string
     ticket_purchase?: Ticket_purchaseListRelationFilter
+    seat_holds?: Seat_scheduleListRelationFilter
   }, "id_user" | "email" | "nik">
 
   export type userOrderByWithAggregationInput = {
@@ -10992,32 +11097,32 @@ export namespace Prisma {
 
   export type seatCreateInput = {
     seat_num: string
+    seat_schedule?: seat_scheduleCreateNestedManyWithoutSeatInput
     purchase_detail?: purchase_detailCreateNestedManyWithoutSeatInput
     carriage: carriageCreateNestedOneWithoutSeatInput
-    seat_schedule?: seat_scheduleCreateNestedManyWithoutSeatInput
   }
 
   export type seatUncheckedCreateInput = {
     id_seat?: number
     seat_num: string
     id_carriage: number
-    purchase_detail?: purchase_detailUncheckedCreateNestedManyWithoutSeatInput
     seat_schedule?: seat_scheduleUncheckedCreateNestedManyWithoutSeatInput
+    purchase_detail?: purchase_detailUncheckedCreateNestedManyWithoutSeatInput
   }
 
   export type seatUpdateInput = {
     seat_num?: StringFieldUpdateOperationsInput | string
+    seat_schedule?: seat_scheduleUpdateManyWithoutSeatNestedInput
     purchase_detail?: purchase_detailUpdateManyWithoutSeatNestedInput
     carriage?: carriageUpdateOneRequiredWithoutSeatNestedInput
-    seat_schedule?: seat_scheduleUpdateManyWithoutSeatNestedInput
   }
 
   export type seatUncheckedUpdateInput = {
     id_seat?: IntFieldUpdateOperationsInput | number
     seat_num?: StringFieldUpdateOperationsInput | string
     id_carriage?: IntFieldUpdateOperationsInput | number
-    purchase_detail?: purchase_detailUncheckedUpdateManyWithoutSeatNestedInput
     seat_schedule?: seat_scheduleUncheckedUpdateManyWithoutSeatNestedInput
+    purchase_detail?: purchase_detailUncheckedUpdateManyWithoutSeatNestedInput
   }
 
   export type seatCreateManyInput = {
@@ -11038,9 +11143,11 @@ export namespace Prisma {
 
   export type seat_scheduleCreateInput = {
     seatschedule_status?: $Enums.seatschedule_status
+    held_until?: Date | string | null
     purchase_detail?: purchase_detailCreateNestedOneWithoutSeat_scheduleInput
     schedule: scheduleCreateNestedOneWithoutSeat_scheduleInput
     seat: seatCreateNestedOneWithoutSeat_scheduleInput
+    held_user?: userCreateNestedOneWithoutSeat_holdsInput
   }
 
   export type seat_scheduleUncheckedCreateInput = {
@@ -11049,13 +11156,17 @@ export namespace Prisma {
     id_schedule: number
     seatschedule_status?: $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: number | null
+    held_by?: number | null
+    held_until?: Date | string | null
   }
 
   export type seat_scheduleUpdateInput = {
     seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     purchase_detail?: purchase_detailUpdateOneWithoutSeat_scheduleNestedInput
     schedule?: scheduleUpdateOneRequiredWithoutSeat_scheduleNestedInput
     seat?: seatUpdateOneRequiredWithoutSeat_scheduleNestedInput
+    held_user?: userUpdateOneWithoutSeat_holdsNestedInput
   }
 
   export type seat_scheduleUncheckedUpdateInput = {
@@ -11064,6 +11175,8 @@ export namespace Prisma {
     id_schedule?: IntFieldUpdateOperationsInput | number
     seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
+    held_by?: NullableIntFieldUpdateOperationsInput | number | null
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type seat_scheduleCreateManyInput = {
@@ -11072,10 +11185,13 @@ export namespace Prisma {
     id_schedule: number
     seatschedule_status?: $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: number | null
+    held_by?: number | null
+    held_until?: Date | string | null
   }
 
   export type seat_scheduleUpdateManyMutationInput = {
     seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type seat_scheduleUncheckedUpdateManyInput = {
@@ -11084,6 +11200,8 @@ export namespace Prisma {
     id_schedule?: IntFieldUpdateOperationsInput | number
     seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
+    held_by?: NullableIntFieldUpdateOperationsInput | number | null
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ticket_purchaseCreateInput = {
@@ -11304,6 +11422,7 @@ export namespace Prisma {
     nik: string
     phone?: string
     ticket_purchase?: ticket_purchaseCreateNestedManyWithoutUserInput
+    seat_holds?: seat_scheduleCreateNestedManyWithoutHeld_userInput
   }
 
   export type userUncheckedCreateInput = {
@@ -11319,6 +11438,7 @@ export namespace Prisma {
     nik: string
     phone?: string
     ticket_purchase?: ticket_purchaseUncheckedCreateNestedManyWithoutUserInput
+    seat_holds?: seat_scheduleUncheckedCreateNestedManyWithoutHeld_userInput
   }
 
   export type userUpdateInput = {
@@ -11333,6 +11453,7 @@ export namespace Prisma {
     nik?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
     ticket_purchase?: ticket_purchaseUpdateManyWithoutUserNestedInput
+    seat_holds?: seat_scheduleUpdateManyWithoutHeld_userNestedInput
   }
 
   export type userUncheckedUpdateInput = {
@@ -11348,6 +11469,7 @@ export namespace Prisma {
     nik?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
     ticket_purchase?: ticket_purchaseUncheckedUpdateManyWithoutUserNestedInput
+    seat_holds?: seat_scheduleUncheckedUpdateManyWithoutHeld_userNestedInput
   }
 
   export type userCreateManyInput = {
@@ -11740,6 +11862,17 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type Purchase_detailNullableScalarRelationFilter = {
     is?: purchase_detailWhereInput | null
     isNot?: purchase_detailWhereInput | null
@@ -11753,6 +11886,11 @@ export namespace Prisma {
   export type SeatScalarRelationFilter = {
     is?: seatWhereInput
     isNot?: seatWhereInput
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: userWhereInput | null
+    isNot?: userWhereInput | null
   }
 
   export type SortOrderInput = {
@@ -11771,6 +11909,8 @@ export namespace Prisma {
     id_schedule?: SortOrder
     seatschedule_status?: SortOrder
     purchaseDetailId_purchasedetail?: SortOrder
+    held_by?: SortOrder
+    held_until?: SortOrder
   }
 
   export type seat_scheduleAvgOrderByAggregateInput = {
@@ -11778,6 +11918,7 @@ export namespace Prisma {
     id_seat?: SortOrder
     id_schedule?: SortOrder
     purchaseDetailId_purchasedetail?: SortOrder
+    held_by?: SortOrder
   }
 
   export type seat_scheduleMaxOrderByAggregateInput = {
@@ -11786,6 +11927,8 @@ export namespace Prisma {
     id_schedule?: SortOrder
     seatschedule_status?: SortOrder
     purchaseDetailId_purchasedetail?: SortOrder
+    held_by?: SortOrder
+    held_until?: SortOrder
   }
 
   export type seat_scheduleMinOrderByAggregateInput = {
@@ -11794,6 +11937,8 @@ export namespace Prisma {
     id_schedule?: SortOrder
     seatschedule_status?: SortOrder
     purchaseDetailId_purchasedetail?: SortOrder
+    held_by?: SortOrder
+    held_until?: SortOrder
   }
 
   export type seat_scheduleSumOrderByAggregateInput = {
@@ -11801,6 +11946,7 @@ export namespace Prisma {
     id_seat?: SortOrder
     id_schedule?: SortOrder
     purchaseDetailId_purchasedetail?: SortOrder
+    held_by?: SortOrder
   }
 
   export type Enumseatschedule_statusWithAggregatesFilter<$PrismaModel = never> = {
@@ -11829,9 +11975,18 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
-  export type UserNullableScalarRelationFilter = {
-    is?: userWhereInput | null
-    isNot?: userWhereInput | null
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type ticket_purchaseOrderByRelevanceInput = {
@@ -12276,6 +12431,13 @@ export namespace Prisma {
     deleteMany?: ticket_purchaseScalarWhereInput | ticket_purchaseScalarWhereInput[]
   }
 
+  export type seat_scheduleCreateNestedManyWithoutSeatInput = {
+    create?: XOR<seat_scheduleCreateWithoutSeatInput, seat_scheduleUncheckedCreateWithoutSeatInput> | seat_scheduleCreateWithoutSeatInput[] | seat_scheduleUncheckedCreateWithoutSeatInput[]
+    connectOrCreate?: seat_scheduleCreateOrConnectWithoutSeatInput | seat_scheduleCreateOrConnectWithoutSeatInput[]
+    createMany?: seat_scheduleCreateManySeatInputEnvelope
+    connect?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+  }
+
   export type purchase_detailCreateNestedManyWithoutSeatInput = {
     create?: XOR<purchase_detailCreateWithoutSeatInput, purchase_detailUncheckedCreateWithoutSeatInput> | purchase_detailCreateWithoutSeatInput[] | purchase_detailUncheckedCreateWithoutSeatInput[]
     connectOrCreate?: purchase_detailCreateOrConnectWithoutSeatInput | purchase_detailCreateOrConnectWithoutSeatInput[]
@@ -12289,7 +12451,7 @@ export namespace Prisma {
     connect?: carriageWhereUniqueInput
   }
 
-  export type seat_scheduleCreateNestedManyWithoutSeatInput = {
+  export type seat_scheduleUncheckedCreateNestedManyWithoutSeatInput = {
     create?: XOR<seat_scheduleCreateWithoutSeatInput, seat_scheduleUncheckedCreateWithoutSeatInput> | seat_scheduleCreateWithoutSeatInput[] | seat_scheduleUncheckedCreateWithoutSeatInput[]
     connectOrCreate?: seat_scheduleCreateOrConnectWithoutSeatInput | seat_scheduleCreateOrConnectWithoutSeatInput[]
     createMany?: seat_scheduleCreateManySeatInputEnvelope
@@ -12303,11 +12465,18 @@ export namespace Prisma {
     connect?: purchase_detailWhereUniqueInput | purchase_detailWhereUniqueInput[]
   }
 
-  export type seat_scheduleUncheckedCreateNestedManyWithoutSeatInput = {
+  export type seat_scheduleUpdateManyWithoutSeatNestedInput = {
     create?: XOR<seat_scheduleCreateWithoutSeatInput, seat_scheduleUncheckedCreateWithoutSeatInput> | seat_scheduleCreateWithoutSeatInput[] | seat_scheduleUncheckedCreateWithoutSeatInput[]
     connectOrCreate?: seat_scheduleCreateOrConnectWithoutSeatInput | seat_scheduleCreateOrConnectWithoutSeatInput[]
+    upsert?: seat_scheduleUpsertWithWhereUniqueWithoutSeatInput | seat_scheduleUpsertWithWhereUniqueWithoutSeatInput[]
     createMany?: seat_scheduleCreateManySeatInputEnvelope
+    set?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+    disconnect?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+    delete?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
     connect?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+    update?: seat_scheduleUpdateWithWhereUniqueWithoutSeatInput | seat_scheduleUpdateWithWhereUniqueWithoutSeatInput[]
+    updateMany?: seat_scheduleUpdateManyWithWhereWithoutSeatInput | seat_scheduleUpdateManyWithWhereWithoutSeatInput[]
+    deleteMany?: seat_scheduleScalarWhereInput | seat_scheduleScalarWhereInput[]
   }
 
   export type purchase_detailUpdateManyWithoutSeatNestedInput = {
@@ -12332,7 +12501,7 @@ export namespace Prisma {
     update?: XOR<XOR<carriageUpdateToOneWithWhereWithoutSeatInput, carriageUpdateWithoutSeatInput>, carriageUncheckedUpdateWithoutSeatInput>
   }
 
-  export type seat_scheduleUpdateManyWithoutSeatNestedInput = {
+  export type seat_scheduleUncheckedUpdateManyWithoutSeatNestedInput = {
     create?: XOR<seat_scheduleCreateWithoutSeatInput, seat_scheduleUncheckedCreateWithoutSeatInput> | seat_scheduleCreateWithoutSeatInput[] | seat_scheduleUncheckedCreateWithoutSeatInput[]
     connectOrCreate?: seat_scheduleCreateOrConnectWithoutSeatInput | seat_scheduleCreateOrConnectWithoutSeatInput[]
     upsert?: seat_scheduleUpsertWithWhereUniqueWithoutSeatInput | seat_scheduleUpsertWithWhereUniqueWithoutSeatInput[]
@@ -12360,20 +12529,6 @@ export namespace Prisma {
     deleteMany?: purchase_detailScalarWhereInput | purchase_detailScalarWhereInput[]
   }
 
-  export type seat_scheduleUncheckedUpdateManyWithoutSeatNestedInput = {
-    create?: XOR<seat_scheduleCreateWithoutSeatInput, seat_scheduleUncheckedCreateWithoutSeatInput> | seat_scheduleCreateWithoutSeatInput[] | seat_scheduleUncheckedCreateWithoutSeatInput[]
-    connectOrCreate?: seat_scheduleCreateOrConnectWithoutSeatInput | seat_scheduleCreateOrConnectWithoutSeatInput[]
-    upsert?: seat_scheduleUpsertWithWhereUniqueWithoutSeatInput | seat_scheduleUpsertWithWhereUniqueWithoutSeatInput[]
-    createMany?: seat_scheduleCreateManySeatInputEnvelope
-    set?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
-    disconnect?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
-    delete?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
-    connect?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
-    update?: seat_scheduleUpdateWithWhereUniqueWithoutSeatInput | seat_scheduleUpdateWithWhereUniqueWithoutSeatInput[]
-    updateMany?: seat_scheduleUpdateManyWithWhereWithoutSeatInput | seat_scheduleUpdateManyWithWhereWithoutSeatInput[]
-    deleteMany?: seat_scheduleScalarWhereInput | seat_scheduleScalarWhereInput[]
-  }
-
   export type purchase_detailCreateNestedOneWithoutSeat_scheduleInput = {
     create?: XOR<purchase_detailCreateWithoutSeat_scheduleInput, purchase_detailUncheckedCreateWithoutSeat_scheduleInput>
     connectOrCreate?: purchase_detailCreateOrConnectWithoutSeat_scheduleInput
@@ -12392,8 +12547,18 @@ export namespace Prisma {
     connect?: seatWhereUniqueInput
   }
 
+  export type userCreateNestedOneWithoutSeat_holdsInput = {
+    create?: XOR<userCreateWithoutSeat_holdsInput, userUncheckedCreateWithoutSeat_holdsInput>
+    connectOrCreate?: userCreateOrConnectWithoutSeat_holdsInput
+    connect?: userWhereUniqueInput
+  }
+
   export type Enumseatschedule_statusFieldUpdateOperationsInput = {
     set?: $Enums.seatschedule_status
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type purchase_detailUpdateOneWithoutSeat_scheduleNestedInput = {
@@ -12420,6 +12585,16 @@ export namespace Prisma {
     upsert?: seatUpsertWithoutSeat_scheduleInput
     connect?: seatWhereUniqueInput
     update?: XOR<XOR<seatUpdateToOneWithWhereWithoutSeat_scheduleInput, seatUpdateWithoutSeat_scheduleInput>, seatUncheckedUpdateWithoutSeat_scheduleInput>
+  }
+
+  export type userUpdateOneWithoutSeat_holdsNestedInput = {
+    create?: XOR<userCreateWithoutSeat_holdsInput, userUncheckedCreateWithoutSeat_holdsInput>
+    connectOrCreate?: userCreateOrConnectWithoutSeat_holdsInput
+    upsert?: userUpsertWithoutSeat_holdsInput
+    disconnect?: userWhereInput | boolean
+    delete?: userWhereInput | boolean
+    connect?: userWhereUniqueInput
+    update?: XOR<XOR<userUpdateToOneWithWhereWithoutSeat_holdsInput, userUpdateWithoutSeat_holdsInput>, userUncheckedUpdateWithoutSeat_holdsInput>
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -12667,11 +12842,25 @@ export namespace Prisma {
     connect?: ticket_purchaseWhereUniqueInput | ticket_purchaseWhereUniqueInput[]
   }
 
+  export type seat_scheduleCreateNestedManyWithoutHeld_userInput = {
+    create?: XOR<seat_scheduleCreateWithoutHeld_userInput, seat_scheduleUncheckedCreateWithoutHeld_userInput> | seat_scheduleCreateWithoutHeld_userInput[] | seat_scheduleUncheckedCreateWithoutHeld_userInput[]
+    connectOrCreate?: seat_scheduleCreateOrConnectWithoutHeld_userInput | seat_scheduleCreateOrConnectWithoutHeld_userInput[]
+    createMany?: seat_scheduleCreateManyHeld_userInputEnvelope
+    connect?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+  }
+
   export type ticket_purchaseUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<ticket_purchaseCreateWithoutUserInput, ticket_purchaseUncheckedCreateWithoutUserInput> | ticket_purchaseCreateWithoutUserInput[] | ticket_purchaseUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ticket_purchaseCreateOrConnectWithoutUserInput | ticket_purchaseCreateOrConnectWithoutUserInput[]
     createMany?: ticket_purchaseCreateManyUserInputEnvelope
     connect?: ticket_purchaseWhereUniqueInput | ticket_purchaseWhereUniqueInput[]
+  }
+
+  export type seat_scheduleUncheckedCreateNestedManyWithoutHeld_userInput = {
+    create?: XOR<seat_scheduleCreateWithoutHeld_userInput, seat_scheduleUncheckedCreateWithoutHeld_userInput> | seat_scheduleCreateWithoutHeld_userInput[] | seat_scheduleUncheckedCreateWithoutHeld_userInput[]
+    connectOrCreate?: seat_scheduleCreateOrConnectWithoutHeld_userInput | seat_scheduleCreateOrConnectWithoutHeld_userInput[]
+    createMany?: seat_scheduleCreateManyHeld_userInputEnvelope
+    connect?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
   }
 
   export type Enumuser_roleFieldUpdateOperationsInput = {
@@ -12692,6 +12881,20 @@ export namespace Prisma {
     deleteMany?: ticket_purchaseScalarWhereInput | ticket_purchaseScalarWhereInput[]
   }
 
+  export type seat_scheduleUpdateManyWithoutHeld_userNestedInput = {
+    create?: XOR<seat_scheduleCreateWithoutHeld_userInput, seat_scheduleUncheckedCreateWithoutHeld_userInput> | seat_scheduleCreateWithoutHeld_userInput[] | seat_scheduleUncheckedCreateWithoutHeld_userInput[]
+    connectOrCreate?: seat_scheduleCreateOrConnectWithoutHeld_userInput | seat_scheduleCreateOrConnectWithoutHeld_userInput[]
+    upsert?: seat_scheduleUpsertWithWhereUniqueWithoutHeld_userInput | seat_scheduleUpsertWithWhereUniqueWithoutHeld_userInput[]
+    createMany?: seat_scheduleCreateManyHeld_userInputEnvelope
+    set?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+    disconnect?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+    delete?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+    connect?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+    update?: seat_scheduleUpdateWithWhereUniqueWithoutHeld_userInput | seat_scheduleUpdateWithWhereUniqueWithoutHeld_userInput[]
+    updateMany?: seat_scheduleUpdateManyWithWhereWithoutHeld_userInput | seat_scheduleUpdateManyWithWhereWithoutHeld_userInput[]
+    deleteMany?: seat_scheduleScalarWhereInput | seat_scheduleScalarWhereInput[]
+  }
+
   export type ticket_purchaseUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<ticket_purchaseCreateWithoutUserInput, ticket_purchaseUncheckedCreateWithoutUserInput> | ticket_purchaseCreateWithoutUserInput[] | ticket_purchaseUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ticket_purchaseCreateOrConnectWithoutUserInput | ticket_purchaseCreateOrConnectWithoutUserInput[]
@@ -12704,6 +12907,20 @@ export namespace Prisma {
     update?: ticket_purchaseUpdateWithWhereUniqueWithoutUserInput | ticket_purchaseUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: ticket_purchaseUpdateManyWithWhereWithoutUserInput | ticket_purchaseUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: ticket_purchaseScalarWhereInput | ticket_purchaseScalarWhereInput[]
+  }
+
+  export type seat_scheduleUncheckedUpdateManyWithoutHeld_userNestedInput = {
+    create?: XOR<seat_scheduleCreateWithoutHeld_userInput, seat_scheduleUncheckedCreateWithoutHeld_userInput> | seat_scheduleCreateWithoutHeld_userInput[] | seat_scheduleUncheckedCreateWithoutHeld_userInput[]
+    connectOrCreate?: seat_scheduleCreateOrConnectWithoutHeld_userInput | seat_scheduleCreateOrConnectWithoutHeld_userInput[]
+    upsert?: seat_scheduleUpsertWithWhereUniqueWithoutHeld_userInput | seat_scheduleUpsertWithWhereUniqueWithoutHeld_userInput[]
+    createMany?: seat_scheduleCreateManyHeld_userInputEnvelope
+    set?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+    disconnect?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+    delete?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+    connect?: seat_scheduleWhereUniqueInput | seat_scheduleWhereUniqueInput[]
+    update?: seat_scheduleUpdateWithWhereUniqueWithoutHeld_userInput | seat_scheduleUpdateWithWhereUniqueWithoutHeld_userInput[]
+    updateMany?: seat_scheduleUpdateManyWithWhereWithoutHeld_userInput | seat_scheduleUpdateManyWithWhereWithoutHeld_userInput[]
+    deleteMany?: seat_scheduleScalarWhereInput | seat_scheduleScalarWhereInput[]
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -12870,6 +13087,17 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedEnumseatschedule_statusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.seatschedule_status | Enumseatschedule_statusFieldRefInput<$PrismaModel>
     in?: $Enums.seatschedule_status[]
@@ -12905,6 +13133,20 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumtrain_statusFilter<$PrismaModel = never> = {
@@ -12965,15 +13207,15 @@ export namespace Prisma {
 
   export type seatCreateWithoutCarriageInput = {
     seat_num: string
-    purchase_detail?: purchase_detailCreateNestedManyWithoutSeatInput
     seat_schedule?: seat_scheduleCreateNestedManyWithoutSeatInput
+    purchase_detail?: purchase_detailCreateNestedManyWithoutSeatInput
   }
 
   export type seatUncheckedCreateWithoutCarriageInput = {
     id_seat?: number
     seat_num: string
-    purchase_detail?: purchase_detailUncheckedCreateNestedManyWithoutSeatInput
     seat_schedule?: seat_scheduleUncheckedCreateNestedManyWithoutSeatInput
+    purchase_detail?: purchase_detailUncheckedCreateNestedManyWithoutSeatInput
   }
 
   export type seatCreateOrConnectWithoutCarriageInput = {
@@ -13063,8 +13305,10 @@ export namespace Prisma {
 
   export type seat_scheduleCreateWithoutScheduleInput = {
     seatschedule_status?: $Enums.seatschedule_status
+    held_until?: Date | string | null
     purchase_detail?: purchase_detailCreateNestedOneWithoutSeat_scheduleInput
     seat: seatCreateNestedOneWithoutSeat_scheduleInput
+    held_user?: userCreateNestedOneWithoutSeat_holdsInput
   }
 
   export type seat_scheduleUncheckedCreateWithoutScheduleInput = {
@@ -13072,6 +13316,8 @@ export namespace Prisma {
     id_seat: number
     seatschedule_status?: $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: number | null
+    held_by?: number | null
+    held_until?: Date | string | null
   }
 
   export type seat_scheduleCreateOrConnectWithoutScheduleInput = {
@@ -13168,6 +13414,8 @@ export namespace Prisma {
     id_schedule?: IntFilter<"seat_schedule"> | number
     seatschedule_status?: Enumseatschedule_statusFilter<"seat_schedule"> | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: IntNullableFilter<"seat_schedule"> | number | null
+    held_by?: IntNullableFilter<"seat_schedule"> | number | null
+    held_until?: DateTimeNullableFilter<"seat_schedule"> | Date | string | null
   }
 
   export type ticket_purchaseUpsertWithWhereUniqueWithoutScheduleInput = {
@@ -13198,6 +13446,33 @@ export namespace Prisma {
     total_price?: FloatFilter<"ticket_purchase"> | number
     id_schedule?: IntFilter<"ticket_purchase"> | number
     id_user?: IntNullableFilter<"ticket_purchase"> | number | null
+  }
+
+  export type seat_scheduleCreateWithoutSeatInput = {
+    seatschedule_status?: $Enums.seatschedule_status
+    held_until?: Date | string | null
+    purchase_detail?: purchase_detailCreateNestedOneWithoutSeat_scheduleInput
+    schedule: scheduleCreateNestedOneWithoutSeat_scheduleInput
+    held_user?: userCreateNestedOneWithoutSeat_holdsInput
+  }
+
+  export type seat_scheduleUncheckedCreateWithoutSeatInput = {
+    id_seat_schedule?: number
+    id_schedule: number
+    seatschedule_status?: $Enums.seatschedule_status
+    purchaseDetailId_purchasedetail?: number | null
+    held_by?: number | null
+    held_until?: Date | string | null
+  }
+
+  export type seat_scheduleCreateOrConnectWithoutSeatInput = {
+    where: seat_scheduleWhereUniqueInput
+    create: XOR<seat_scheduleCreateWithoutSeatInput, seat_scheduleUncheckedCreateWithoutSeatInput>
+  }
+
+  export type seat_scheduleCreateManySeatInputEnvelope = {
+    data: seat_scheduleCreateManySeatInput | seat_scheduleCreateManySeatInput[]
+    skipDuplicates?: boolean
   }
 
   export type purchase_detailCreateWithoutSeatInput = {
@@ -13249,27 +13524,20 @@ export namespace Prisma {
     create: XOR<carriageCreateWithoutSeatInput, carriageUncheckedCreateWithoutSeatInput>
   }
 
-  export type seat_scheduleCreateWithoutSeatInput = {
-    seatschedule_status?: $Enums.seatschedule_status
-    purchase_detail?: purchase_detailCreateNestedOneWithoutSeat_scheduleInput
-    schedule: scheduleCreateNestedOneWithoutSeat_scheduleInput
-  }
-
-  export type seat_scheduleUncheckedCreateWithoutSeatInput = {
-    id_seat_schedule?: number
-    id_schedule: number
-    seatschedule_status?: $Enums.seatschedule_status
-    purchaseDetailId_purchasedetail?: number | null
-  }
-
-  export type seat_scheduleCreateOrConnectWithoutSeatInput = {
+  export type seat_scheduleUpsertWithWhereUniqueWithoutSeatInput = {
     where: seat_scheduleWhereUniqueInput
+    update: XOR<seat_scheduleUpdateWithoutSeatInput, seat_scheduleUncheckedUpdateWithoutSeatInput>
     create: XOR<seat_scheduleCreateWithoutSeatInput, seat_scheduleUncheckedCreateWithoutSeatInput>
   }
 
-  export type seat_scheduleCreateManySeatInputEnvelope = {
-    data: seat_scheduleCreateManySeatInput | seat_scheduleCreateManySeatInput[]
-    skipDuplicates?: boolean
+  export type seat_scheduleUpdateWithWhereUniqueWithoutSeatInput = {
+    where: seat_scheduleWhereUniqueInput
+    data: XOR<seat_scheduleUpdateWithoutSeatInput, seat_scheduleUncheckedUpdateWithoutSeatInput>
+  }
+
+  export type seat_scheduleUpdateManyWithWhereWithoutSeatInput = {
+    where: seat_scheduleScalarWhereInput
+    data: XOR<seat_scheduleUpdateManyMutationInput, seat_scheduleUncheckedUpdateManyWithoutSeatInput>
   }
 
   export type purchase_detailUpsertWithWhereUniqueWithoutSeatInput = {
@@ -13325,22 +13593,6 @@ export namespace Prisma {
     quota?: IntFieldUpdateOperationsInput | number
     carriage_category?: Enumcarriage_categoryFieldUpdateOperationsInput | $Enums.carriage_category
     id_train?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type seat_scheduleUpsertWithWhereUniqueWithoutSeatInput = {
-    where: seat_scheduleWhereUniqueInput
-    update: XOR<seat_scheduleUpdateWithoutSeatInput, seat_scheduleUncheckedUpdateWithoutSeatInput>
-    create: XOR<seat_scheduleCreateWithoutSeatInput, seat_scheduleUncheckedCreateWithoutSeatInput>
-  }
-
-  export type seat_scheduleUpdateWithWhereUniqueWithoutSeatInput = {
-    where: seat_scheduleWhereUniqueInput
-    data: XOR<seat_scheduleUpdateWithoutSeatInput, seat_scheduleUncheckedUpdateWithoutSeatInput>
-  }
-
-  export type seat_scheduleUpdateManyWithWhereWithoutSeatInput = {
-    where: seat_scheduleScalarWhereInput
-    data: XOR<seat_scheduleUpdateManyMutationInput, seat_scheduleUncheckedUpdateManyWithoutSeatInput>
   }
 
   export type purchase_detailCreateWithoutSeat_scheduleInput = {
@@ -13415,6 +13667,40 @@ export namespace Prisma {
   export type seatCreateOrConnectWithoutSeat_scheduleInput = {
     where: seatWhereUniqueInput
     create: XOR<seatCreateWithoutSeat_scheduleInput, seatUncheckedCreateWithoutSeat_scheduleInput>
+  }
+
+  export type userCreateWithoutSeat_holdsInput = {
+    username: string
+    email: string
+    password: string
+    role: $Enums.user_role
+    profile_picture?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    address?: string
+    nik: string
+    phone?: string
+    ticket_purchase?: ticket_purchaseCreateNestedManyWithoutUserInput
+  }
+
+  export type userUncheckedCreateWithoutSeat_holdsInput = {
+    id_user?: number
+    username: string
+    email: string
+    password: string
+    role: $Enums.user_role
+    profile_picture?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    address?: string
+    nik: string
+    phone?: string
+    ticket_purchase?: ticket_purchaseUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type userCreateOrConnectWithoutSeat_holdsInput = {
+    where: userWhereUniqueInput
+    create: XOR<userCreateWithoutSeat_holdsInput, userUncheckedCreateWithoutSeat_holdsInput>
   }
 
   export type purchase_detailUpsertWithoutSeat_scheduleInput = {
@@ -13509,6 +13795,46 @@ export namespace Prisma {
     purchase_detail?: purchase_detailUncheckedUpdateManyWithoutSeatNestedInput
   }
 
+  export type userUpsertWithoutSeat_holdsInput = {
+    update: XOR<userUpdateWithoutSeat_holdsInput, userUncheckedUpdateWithoutSeat_holdsInput>
+    create: XOR<userCreateWithoutSeat_holdsInput, userUncheckedCreateWithoutSeat_holdsInput>
+    where?: userWhereInput
+  }
+
+  export type userUpdateToOneWithWhereWithoutSeat_holdsInput = {
+    where?: userWhereInput
+    data: XOR<userUpdateWithoutSeat_holdsInput, userUncheckedUpdateWithoutSeat_holdsInput>
+  }
+
+  export type userUpdateWithoutSeat_holdsInput = {
+    username?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: Enumuser_roleFieldUpdateOperationsInput | $Enums.user_role
+    profile_picture?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    address?: StringFieldUpdateOperationsInput | string
+    nik?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    ticket_purchase?: ticket_purchaseUpdateManyWithoutUserNestedInput
+  }
+
+  export type userUncheckedUpdateWithoutSeat_holdsInput = {
+    id_user?: IntFieldUpdateOperationsInput | number
+    username?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: Enumuser_roleFieldUpdateOperationsInput | $Enums.user_role
+    profile_picture?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    address?: StringFieldUpdateOperationsInput | string
+    nik?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    ticket_purchase?: ticket_purchaseUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type purchase_detailCreateWithoutTicket_purchaseInput = {
     buyer_name: string
     buyer_email: string
@@ -13581,6 +13907,7 @@ export namespace Prisma {
     address?: string
     nik: string
     phone?: string
+    seat_holds?: seat_scheduleCreateNestedManyWithoutHeld_userInput
   }
 
   export type userUncheckedCreateWithoutTicket_purchaseInput = {
@@ -13595,6 +13922,7 @@ export namespace Prisma {
     address?: string
     nik: string
     phone?: string
+    seat_holds?: seat_scheduleUncheckedCreateNestedManyWithoutHeld_userInput
   }
 
   export type userCreateOrConnectWithoutTicket_purchaseInput = {
@@ -13678,6 +14006,7 @@ export namespace Prisma {
     address?: StringFieldUpdateOperationsInput | string
     nik?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    seat_holds?: seat_scheduleUpdateManyWithoutHeld_userNestedInput
   }
 
   export type userUncheckedUpdateWithoutTicket_purchaseInput = {
@@ -13692,12 +14021,13 @@ export namespace Prisma {
     address?: StringFieldUpdateOperationsInput | string
     nik?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    seat_holds?: seat_scheduleUncheckedUpdateManyWithoutHeld_userNestedInput
   }
 
   export type seatCreateWithoutPurchase_detailInput = {
     seat_num: string
-    carriage: carriageCreateNestedOneWithoutSeatInput
     seat_schedule?: seat_scheduleCreateNestedManyWithoutSeatInput
+    carriage: carriageCreateNestedOneWithoutSeatInput
   }
 
   export type seatUncheckedCreateWithoutPurchase_detailInput = {
@@ -13740,8 +14070,10 @@ export namespace Prisma {
 
   export type seat_scheduleCreateWithoutPurchase_detailInput = {
     seatschedule_status?: $Enums.seatschedule_status
+    held_until?: Date | string | null
     schedule: scheduleCreateNestedOneWithoutSeat_scheduleInput
     seat: seatCreateNestedOneWithoutSeat_scheduleInput
+    held_user?: userCreateNestedOneWithoutSeat_holdsInput
   }
 
   export type seat_scheduleUncheckedCreateWithoutPurchase_detailInput = {
@@ -13749,6 +14081,8 @@ export namespace Prisma {
     id_seat: number
     id_schedule: number
     seatschedule_status?: $Enums.seatschedule_status
+    held_by?: number | null
+    held_until?: Date | string | null
   }
 
   export type seat_scheduleCreateOrConnectWithoutPurchase_detailInput = {
@@ -13774,8 +14108,8 @@ export namespace Prisma {
 
   export type seatUpdateWithoutPurchase_detailInput = {
     seat_num?: StringFieldUpdateOperationsInput | string
-    carriage?: carriageUpdateOneRequiredWithoutSeatNestedInput
     seat_schedule?: seat_scheduleUpdateManyWithoutSeatNestedInput
+    carriage?: carriageUpdateOneRequiredWithoutSeatNestedInput
   }
 
   export type seatUncheckedUpdateWithoutPurchase_detailInput = {
@@ -13985,6 +14319,33 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type seat_scheduleCreateWithoutHeld_userInput = {
+    seatschedule_status?: $Enums.seatschedule_status
+    held_until?: Date | string | null
+    purchase_detail?: purchase_detailCreateNestedOneWithoutSeat_scheduleInput
+    schedule: scheduleCreateNestedOneWithoutSeat_scheduleInput
+    seat: seatCreateNestedOneWithoutSeat_scheduleInput
+  }
+
+  export type seat_scheduleUncheckedCreateWithoutHeld_userInput = {
+    id_seat_schedule?: number
+    id_seat: number
+    id_schedule: number
+    seatschedule_status?: $Enums.seatschedule_status
+    purchaseDetailId_purchasedetail?: number | null
+    held_until?: Date | string | null
+  }
+
+  export type seat_scheduleCreateOrConnectWithoutHeld_userInput = {
+    where: seat_scheduleWhereUniqueInput
+    create: XOR<seat_scheduleCreateWithoutHeld_userInput, seat_scheduleUncheckedCreateWithoutHeld_userInput>
+  }
+
+  export type seat_scheduleCreateManyHeld_userInputEnvelope = {
+    data: seat_scheduleCreateManyHeld_userInput | seat_scheduleCreateManyHeld_userInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ticket_purchaseUpsertWithWhereUniqueWithoutUserInput = {
     where: ticket_purchaseWhereUniqueInput
     update: XOR<ticket_purchaseUpdateWithoutUserInput, ticket_purchaseUncheckedUpdateWithoutUserInput>
@@ -14001,6 +14362,22 @@ export namespace Prisma {
     data: XOR<ticket_purchaseUpdateManyMutationInput, ticket_purchaseUncheckedUpdateManyWithoutUserInput>
   }
 
+  export type seat_scheduleUpsertWithWhereUniqueWithoutHeld_userInput = {
+    where: seat_scheduleWhereUniqueInput
+    update: XOR<seat_scheduleUpdateWithoutHeld_userInput, seat_scheduleUncheckedUpdateWithoutHeld_userInput>
+    create: XOR<seat_scheduleCreateWithoutHeld_userInput, seat_scheduleUncheckedCreateWithoutHeld_userInput>
+  }
+
+  export type seat_scheduleUpdateWithWhereUniqueWithoutHeld_userInput = {
+    where: seat_scheduleWhereUniqueInput
+    data: XOR<seat_scheduleUpdateWithoutHeld_userInput, seat_scheduleUncheckedUpdateWithoutHeld_userInput>
+  }
+
+  export type seat_scheduleUpdateManyWithWhereWithoutHeld_userInput = {
+    where: seat_scheduleScalarWhereInput
+    data: XOR<seat_scheduleUpdateManyMutationInput, seat_scheduleUncheckedUpdateManyWithoutHeld_userInput>
+  }
+
   export type seatCreateManyCarriageInput = {
     id_seat?: number
     seat_num: string
@@ -14008,15 +14385,15 @@ export namespace Prisma {
 
   export type seatUpdateWithoutCarriageInput = {
     seat_num?: StringFieldUpdateOperationsInput | string
-    purchase_detail?: purchase_detailUpdateManyWithoutSeatNestedInput
     seat_schedule?: seat_scheduleUpdateManyWithoutSeatNestedInput
+    purchase_detail?: purchase_detailUpdateManyWithoutSeatNestedInput
   }
 
   export type seatUncheckedUpdateWithoutCarriageInput = {
     id_seat?: IntFieldUpdateOperationsInput | number
     seat_num?: StringFieldUpdateOperationsInput | string
-    purchase_detail?: purchase_detailUncheckedUpdateManyWithoutSeatNestedInput
     seat_schedule?: seat_scheduleUncheckedUpdateManyWithoutSeatNestedInput
+    purchase_detail?: purchase_detailUncheckedUpdateManyWithoutSeatNestedInput
   }
 
   export type seatUncheckedUpdateManyWithoutCarriageInput = {
@@ -14029,6 +14406,8 @@ export namespace Prisma {
     id_seat: number
     seatschedule_status?: $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: number | null
+    held_by?: number | null
+    held_until?: Date | string | null
   }
 
   export type ticket_purchaseCreateManyScheduleInput = {
@@ -14043,8 +14422,10 @@ export namespace Prisma {
 
   export type seat_scheduleUpdateWithoutScheduleInput = {
     seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     purchase_detail?: purchase_detailUpdateOneWithoutSeat_scheduleNestedInput
     seat?: seatUpdateOneRequiredWithoutSeat_scheduleNestedInput
+    held_user?: userUpdateOneWithoutSeat_holdsNestedInput
   }
 
   export type seat_scheduleUncheckedUpdateWithoutScheduleInput = {
@@ -14052,6 +14433,8 @@ export namespace Prisma {
     id_seat?: IntFieldUpdateOperationsInput | number
     seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
+    held_by?: NullableIntFieldUpdateOperationsInput | number | null
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type seat_scheduleUncheckedUpdateManyWithoutScheduleInput = {
@@ -14059,6 +14442,8 @@ export namespace Prisma {
     id_seat?: IntFieldUpdateOperationsInput | number
     seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
     purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
+    held_by?: NullableIntFieldUpdateOperationsInput | number | null
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ticket_purchaseUpdateWithoutScheduleInput = {
@@ -14092,6 +14477,15 @@ export namespace Prisma {
     id_user?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
+  export type seat_scheduleCreateManySeatInput = {
+    id_seat_schedule?: number
+    id_schedule: number
+    seatschedule_status?: $Enums.seatschedule_status
+    purchaseDetailId_purchasedetail?: number | null
+    held_by?: number | null
+    held_until?: Date | string | null
+  }
+
   export type purchase_detailCreateManySeatInput = {
     id_purchasedetail?: number
     buyer_name: string
@@ -14101,11 +14495,30 @@ export namespace Prisma {
     id_ticket_purchase: number
   }
 
-  export type seat_scheduleCreateManySeatInput = {
-    id_seat_schedule?: number
-    id_schedule: number
-    seatschedule_status?: $Enums.seatschedule_status
-    purchaseDetailId_purchasedetail?: number | null
+  export type seat_scheduleUpdateWithoutSeatInput = {
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    purchase_detail?: purchase_detailUpdateOneWithoutSeat_scheduleNestedInput
+    schedule?: scheduleUpdateOneRequiredWithoutSeat_scheduleNestedInput
+    held_user?: userUpdateOneWithoutSeat_holdsNestedInput
+  }
+
+  export type seat_scheduleUncheckedUpdateWithoutSeatInput = {
+    id_seat_schedule?: IntFieldUpdateOperationsInput | number
+    id_schedule?: IntFieldUpdateOperationsInput | number
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
+    held_by?: NullableIntFieldUpdateOperationsInput | number | null
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type seat_scheduleUncheckedUpdateManyWithoutSeatInput = {
+    id_seat_schedule?: IntFieldUpdateOperationsInput | number
+    id_schedule?: IntFieldUpdateOperationsInput | number
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
+    held_by?: NullableIntFieldUpdateOperationsInput | number | null
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type purchase_detailUpdateWithoutSeatInput = {
@@ -14134,26 +14547,6 @@ export namespace Prisma {
     buyer_phone?: StringFieldUpdateOperationsInput | string
     total_price?: FloatFieldUpdateOperationsInput | number
     id_ticket_purchase?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type seat_scheduleUpdateWithoutSeatInput = {
-    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
-    purchase_detail?: purchase_detailUpdateOneWithoutSeat_scheduleNestedInput
-    schedule?: scheduleUpdateOneRequiredWithoutSeat_scheduleNestedInput
-  }
-
-  export type seat_scheduleUncheckedUpdateWithoutSeatInput = {
-    id_seat_schedule?: IntFieldUpdateOperationsInput | number
-    id_schedule?: IntFieldUpdateOperationsInput | number
-    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
-    purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type seat_scheduleUncheckedUpdateManyWithoutSeatInput = {
-    id_seat_schedule?: IntFieldUpdateOperationsInput | number
-    id_schedule?: IntFieldUpdateOperationsInput | number
-    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
-    purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type purchase_detailCreateManyTicket_purchaseInput = {
@@ -14198,12 +14591,16 @@ export namespace Prisma {
     id_seat: number
     id_schedule: number
     seatschedule_status?: $Enums.seatschedule_status
+    held_by?: number | null
+    held_until?: Date | string | null
   }
 
   export type seat_scheduleUpdateWithoutPurchase_detailInput = {
     seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     schedule?: scheduleUpdateOneRequiredWithoutSeat_scheduleNestedInput
     seat?: seatUpdateOneRequiredWithoutSeat_scheduleNestedInput
+    held_user?: userUpdateOneWithoutSeat_holdsNestedInput
   }
 
   export type seat_scheduleUncheckedUpdateWithoutPurchase_detailInput = {
@@ -14211,6 +14608,8 @@ export namespace Prisma {
     id_seat?: IntFieldUpdateOperationsInput | number
     id_schedule?: IntFieldUpdateOperationsInput | number
     seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    held_by?: NullableIntFieldUpdateOperationsInput | number | null
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type seat_scheduleUncheckedUpdateManyWithoutPurchase_detailInput = {
@@ -14218,6 +14617,8 @@ export namespace Prisma {
     id_seat?: IntFieldUpdateOperationsInput | number
     id_schedule?: IntFieldUpdateOperationsInput | number
     seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    held_by?: NullableIntFieldUpdateOperationsInput | number | null
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type carriageCreateManyTrainInput = {
@@ -14310,6 +14711,15 @@ export namespace Prisma {
     id_schedule: number
   }
 
+  export type seat_scheduleCreateManyHeld_userInput = {
+    id_seat_schedule?: number
+    id_seat: number
+    id_schedule: number
+    seatschedule_status?: $Enums.seatschedule_status
+    purchaseDetailId_purchasedetail?: number | null
+    held_until?: Date | string | null
+  }
+
   export type ticket_purchaseUpdateWithoutUserInput = {
     purchase_date?: DateTimeFieldUpdateOperationsInput | Date | string
     buyer_name?: StringFieldUpdateOperationsInput | string
@@ -14339,6 +14749,32 @@ export namespace Prisma {
     buyer_phone?: StringFieldUpdateOperationsInput | string
     total_price?: FloatFieldUpdateOperationsInput | number
     id_schedule?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type seat_scheduleUpdateWithoutHeld_userInput = {
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    purchase_detail?: purchase_detailUpdateOneWithoutSeat_scheduleNestedInput
+    schedule?: scheduleUpdateOneRequiredWithoutSeat_scheduleNestedInput
+    seat?: seatUpdateOneRequiredWithoutSeat_scheduleNestedInput
+  }
+
+  export type seat_scheduleUncheckedUpdateWithoutHeld_userInput = {
+    id_seat_schedule?: IntFieldUpdateOperationsInput | number
+    id_seat?: IntFieldUpdateOperationsInput | number
+    id_schedule?: IntFieldUpdateOperationsInput | number
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type seat_scheduleUncheckedUpdateManyWithoutHeld_userInput = {
+    id_seat_schedule?: IntFieldUpdateOperationsInput | number
+    id_seat?: IntFieldUpdateOperationsInput | number
+    id_schedule?: IntFieldUpdateOperationsInput | number
+    seatschedule_status?: Enumseatschedule_statusFieldUpdateOperationsInput | $Enums.seatschedule_status
+    purchaseDetailId_purchasedetail?: NullableIntFieldUpdateOperationsInput | number | null
+    held_until?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
 
